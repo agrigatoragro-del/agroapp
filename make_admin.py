@@ -3,7 +3,7 @@ from models import User
 
 db = SessionLocal()
 
-target_phone = "777764777278"
+target_phone = "77774777278"
 user = db.query(User).filter(User.phone == target_phone).first()
 
 if user:
