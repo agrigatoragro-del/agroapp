@@ -1,121 +1,19 @@
-// Встроенный справочник географии РК
-const KAZAKHSTAN_REGIONS = {
-    "Города республиканского значения": ["г. Астана", "г. Алматы", "г. Шымкент"],
-    "Костанайская область": [
-        "г. Костанай", "г. Рудный", "г. Лисаковск", "г. Житикара", "г. Аркалык", "г. Тобыл",
-        "Алтынсаринский район", "Амангельдинский район", "Аулиекольский район", "Денисовский район",
-        "Джангельдинский район", "Житикаринский район", "Камыстинский район", "Карабалыкский район",
-        "Карасуский район", "Костанайский район", "Мендыкаринский район", "Наурзумский район",
-        "Сарыкольский район", "р-н Бейимбета Майлина", "Узункольский район", "Федоровский район"
-    ],
-    "Акмолинская область": [
-        "г. Кокшетау", "г. Степногорск", "г. Щучинск", "г. Косшы", "Аккольский район",
-        "Аршалынский район", "Астраханский район", "Атбасарский район", "Буландынский район",
-        "Бурабайский район", "Жаксынский район", "Жаркаинский район", "Зерендинский район",
-        "Есильский район", "Ерейментауский район", "Коргалжынский район", "Сандыктауский район",
-        "Целиноградский район", "Шортандинский район"
-    ],
-    "Северо-Казахстанская область": [
-        "г. Петропавловск", "г. Тайынша", "Акжарский район", "Айыртауский район", "Есильский район",
-        "Жамбылский район", "Мамлютский район", "р-н им. Г. Мусрепова", "Кызылжарский район",
-        "Аккайынский район", "Тимирязевский район", "Уалихановский район", "р-н Шал Акына"
-    ],
-    "Павлодарская область": [
-        "г. Павлодар", "г. Экибастуз", "г. Аксу", "Актогайский район", "Баянаульский район",
-        "Железинский район", "Иртышский район", "р-н Теренколь", "р-н Аккулы", "Майский район",
-        "Успенский район", "Щербактинский район"
-    ],
-    "Актюбинская область": [
-        "г. Актобе", "г. Хромтау", "г. Кандыагаш", "г. Шалкар", "Айтекебийский район", "Алгинский район",
-        "Байганинский район", "Иргизский район", "Мартукский район", "Мугалжарский район",
-        "Темирский район", "Хобдинский район", "Хромтауский район", "Шалкарский район"
-    ],
-    "Западно-Казахстанская область": [
-        "г. Уральск", "г. Аксай", "Акжаикский район", "Бокейординский район", "Бурлинский район",
-        "Каратобинский район", "Таскалинский район", "Теректинский район", "Казталовский район",
-        "Жангалинский район", "р-н Байтерек", "Шынгырлауский район"
-    ],
-    "Атырауская область": [
-        "г. Атырау", "г. Кульсары", "Жылыойский район", "Индерский район", "Исатайский район",
-        "Курмангазинский район", "Кызылкогинский район", "Макатский район", "Махамбетский район"
-    ],
-    "Мангистауская область": [
-        "г. Актау", "г. Жанаозен", "Мангистауский район", "Мунайлинский район", "Каракиянский район",
-        "Бейнеуский район", "Тупкараганский район"
-    ],
-    "Карагандинская область": [
-        "г. Караганда", "г. Темиртау", "г. Шахтинск", "г. Сарань", "г. Балхаш", "г. Приозерск",
-        "Абайский район", "Актогайский район", "Бухар-Жырауский район", "Каркаралинский район", "Шетский район"
-    ],
-    "Улытауская область": ["г. Жезказган", "г. Сатпаев", "Жанааркинский район", "Улытауский район"],
-    "Восточно-Казахстанская область": [
-        "г. Усть-Каменогорск", "г. Риддер", "г. Алтай", "Глубоковский район", "Зайсанский район",
-        "Катон-Карагайский район", "Курчумский район", "Уланский район", "Шемонаихинский район"
-    ],
-    "Абайская область": [
-        "г. Семей", "г. Курчатов", "Абайский район", "Аягозский район", "Бескарагайский район",
-        "Бородулихинский район", "Жарминский район", "Кокпектинский район", "Урджарский район"
-    ],
-    "Жетысуская область": [
-        "г. Талдыкорган", "г. Текели", "Аксуский район", "Алакольский район", "Ескельдинский район",
-        "Каратальский район", "Кербулакский район", "Панфиловский район", "Сарканский район"
-    ],
-    "Алматинская область": [
-        "г. Конаев", "г. Каскелен", "г. Талгар", "г. Есик", "Балхашский район", "Енбекшиказахский район",
-        "Жамбылский район", "Илийский район", "Кегенский район", "Райымбекский район", "Уйгурский район"
-    ],
-    "Жамбылская область": [
-        "г. Тараз", "г. Каратау", "г. Шу", "Байзаковский район", "Жамбылский район", "Сарысуский район",
-        "Кордайский район", "Меркенский район", "Мойынкумский район", "р-н Т. Рыскулова", "Таласский район", "Шуский район"
-    ],
-    "Кызылординская область": [
-        "г. Кызылорда", "г. Байконур", "Аральский район", "Казалинский район", "Кармакшинский район",
-        "Жалагашский район", "Сырдарьинский район", "Шиелийский район", "Жанакорганский район"
-    ],
-    "Туркестанская область": [
-        "г. Туркестан", "г. Арыс", "г. Кентау", "Байдибекский район", "Жетысайский район", "Казыгуртский район",
-        "Мактааральский район", "Ордабасинский район", "Отрарский район", "Сайрамский район", "Сарыагашский район",
-        "Созакский район", "Толебийский район", "Тюлькубасский район", "Шардаринский район"
-    ]
-};
-
 let currentUser = JSON.parse(localStorage.getItem('agro_user')) || null;
 let currentCategory = '';
 let currentAuthType = 'individual';
 let pendingAction = null;
 
+// Массив для хранения выбранных файлов фотографий (до 10 шт.)
+let selectedImageFiles = [];
+
 document.addEventListener('DOMContentLoaded', () => {
-    populateRegionsDropdowns();
     updateHeaderAuthStatus();
     loadAds();
 });
 
-function populateRegionsDropdowns() {
-    const filterSelect = document.getElementById('filter-region');
-    const adSelect = document.getElementById('ad-location');
-
-    let optionsHtmlFilter = '<option value="">Весь Казахстан (Все регионы)</option>';
-    let optionsHtmlAd = '<option value="">Выберите область / район / город</option>';
-
-    for (const [regionName, localities] of Object.entries(KAZAKHSTAN_REGIONS)) {
-        optionsHtmlFilter += `<optgroup label="${regionName}">`;
-        optionsHtmlAd += `<optgroup label="${regionName}">`;
-
-        localities.forEach(loc => {
-            optionsHtmlFilter += `<option value="${loc}">${loc}</option>`;
-            optionsHtmlAd += `<option value="${loc}, ${regionName}">${loc} (${regionName})</option>`;
-        });
-
-        optionsHtmlFilter += `</optgroup>`;
-        optionsHtmlAd += `</optgroup>`;
-    }
-
-    if (filterSelect) filterSelect.innerHTML = optionsHtmlFilter;
-    if (adSelect) adSelect.innerHTML = optionsHtmlAd;
-}
-
 function updateHeaderAuthStatus() {
     const badge = document.getElementById('user-status-badge');
+    if (!badge) return;
     if (currentUser) {
         const avatarSrc = currentUser.avatar_url || 'https://via.placeholder.com/40?text=A';
         badge.innerHTML = `
@@ -162,7 +60,6 @@ function renderProfileData() {
     document.getElementById('prof-name').textContent = currentUser.name || 'Не указано';
     document.getElementById('prof-phone').textContent = currentUser.phone;
     document.getElementById('prof-type').textContent = currentUser.user_type === 'company' ? 'Юр. лицо (ТОО)' : 'Физ. лицо / КХ';
-    document.getElementById('prof-credits').textContent = `${currentUser.ad_credits || 0} ₸`;
 
     const binContainer = document.getElementById('prof-bin-container');
     if (currentUser.user_type === 'company') {
@@ -173,23 +70,12 @@ function renderProfileData() {
     }
 
     const avatarImg = document.getElementById('prof-avatar-img');
-    avatarImg.src = currentUser.avatar_url || "https://via.placeholder.com/150?text=Фото";
-
-    const badge = document.getElementById('prof-verified-badge');
-    if (currentUser.is_verified) {
-        badge.textContent = "Verified Vendor (Проверен)";
-        badge.className = "text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold";
-    } else {
-        badge.textContent = "Обычный аккаунт";
-        badge.className = "text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded-full font-bold";
-    }
+    if (avatarImg) avatarImg.src = currentUser.avatar_url || "https://via.placeholder.com/150?text=Фото";
 
     const adminSection = document.getElementById('admin-panel-section');
-    if (currentUser.is_admin) {
+    if (currentUser.is_admin && adminSection) {
         adminSection.classList.remove('hidden');
         loadAdminModerationQueue();
-    } else {
-        adminSection.classList.add('hidden');
     }
 
     loadMyAds();
@@ -197,6 +83,7 @@ function renderProfileData() {
 
 async function loadAdminModerationQueue() {
     const container = document.getElementById('admin-moderation-list');
+    if (!container) return;
     container.innerHTML = '<p class="text-xs text-gray-500">Загрузка очереди...</p>';
 
     try {
@@ -205,7 +92,7 @@ async function loadAdminModerationQueue() {
         const pending = ads.filter(ad => !ad.is_approved);
 
         if (pending.length === 0) {
-            container.innerHTML = '<p class="text-xs text-green-700 font-semibold">Нет объявлений, ожидающих модерации.</p>';
+            container.innerHTML = '<p class="text-xs text-green-700 font-semibold">Нет объявлений на модерации.</p>';
             return;
         }
 
@@ -232,31 +119,60 @@ async function approveAd(adId) {
         if (res.ok) {
             alert('Объявление одобрено!');
             loadAdminModerationQueue();
+            loadAds();
         }
     } catch (e) {
         alert('Ошибка при одобрении');
     }
 }
 
-function previewImages(event) {
-    const container = document.getElementById('image-preview-container');
-    container.innerHTML = '';
+// Логика мультизагрузки фото (плитка с плюсиком)
+function handleFilesSelect(event) {
     const files = event.target.files;
+    if (!files) return;
 
-    if (files.length > 10) {
-        alert('Максимально можно выбрать до 10 фотографий!');
-    }
-
-    for (let i = 0; i < Math.min(files.length, 10); i++) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = "h-14 rounded border overflow-hidden bg-gray-100";
-            div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
-            container.appendChild(div);
+    for (let i = 0; i < files.length; i++) {
+        if (selectedImageFiles.length >= 10) {
+            alert('Максимально можно загрузить до 10 фотографий!');
+            break;
         }
-        reader.readAsDataURL(files[i]);
+        selectedImageFiles.push(files[i]);
     }
+    renderImagePreviews();
+    event.target.value = ''; // сброс инпута
+}
+
+function removeImage(index) {
+    selectedImageFiles.splice(index, 1);
+    renderImagePreviews();
+}
+
+function renderImagePreviews() {
+    const grid = document.getElementById('image-preview-grid');
+    if (!grid) return;
+
+    let html = selectedImageFiles.map((file, index) => {
+        const imageUrl = URL.createObjectURL(file);
+        return `
+            <div class="relative h-24 rounded-xl overflow-hidden border bg-gray-100 shadow-sm group">
+                <img src="${imageUrl}" class="w-full h-full object-cover">
+                <button type="button" onclick="removeImage(${index})" class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-80 hover:opacity-100 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+
+    if (selectedImageFiles.length < 10) {
+        html += `
+            <label for="ad-images" class="cursor-pointer border-2 border-dashed border-green-600 hover:border-green-700 bg-green-50 hover:bg-green-100 rounded-xl flex flex-col items-center justify-center h-24 text-green-700 transition">
+                <i class="fa-solid fa-plus text-xl mb-1"></i>
+                <span class="text-[11px] font-semibold text-center px-1">Ещё фото</span>
+            </label>
+        `;
+    }
+
+    grid.innerHTML = html;
 }
 
 async function changePassword(event) {
@@ -307,6 +223,7 @@ async function uploadUserAvatar(event) {
 
 async function loadMyAds() {
     const container = document.getElementById('my-ads-list');
+    if (!container) return;
     container.innerHTML = '<p class="text-sm text-gray-500">Загрузка...</p>';
 
     try {
@@ -357,13 +274,15 @@ function logout() {
     localStorage.removeItem('agro_user');
     updateHeaderAuthStatus();
     switchTab('feed');
-    alert('Вы вышли.');
+    alert('Вы вышли из аккаунта.');
 }
 
 async function loadAds() {
     const container = document.getElementById('ads-list');
-    const regionFilter = document.getElementById('filter-region').value;
-    const searchQuery = document.getElementById('search-input').value.toLowerCase();
+    if (!container) return;
+    
+    const regionFilter = document.getElementById('filter-region')?.value || '';
+    const searchQuery = document.getElementById('search-input')?.value.toLowerCase() || '';
 
     container.innerHTML = '<div class="text-center py-10 text-gray-500 col-span-full">Загрузка объявлений...</div>';
 
@@ -375,7 +294,7 @@ async function loadAds() {
         if (searchQuery) filtered = filtered.filter(ad => ad.title.toLowerCase().includes(searchQuery) || ad.description.toLowerCase().includes(searchQuery));
 
         if (!filtered || filtered.length === 0) {
-            container.innerHTML = '<div class="text-center py-10 text-gray-500 col-span-full">Одобренных объявлений не найдено.</div>';
+            container.innerHTML = '<div class="text-center py-10 text-gray-500 col-span-full">Объявлений не найдено.</div>';
             return;
         }
 
@@ -420,19 +339,15 @@ async function loadAds() {
                             <span class="text-xl font-extrabold text-green-700">${ad.price.toLocaleString()} ₸</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="checkAndOpenContact('${waLink}')" class="bg-green-600 hover:bg-green-700 text-white text-xs py-2 px-3 rounded-lg text-center font-medium flex items-center justify-center gap-1">
-                                <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
-                            </button>
-                            <button onclick="checkAndOpenContact('${telLink}')" class="bg-gray-900 hover:bg-gray-800 text-white text-xs py-2 px-3 rounded-lg text-center font-medium flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-phone text-xs"></i> Позвонить
-                            </button>
+                            <button onclick="checkAndOpenContact('${waLink}')" class="bg-green-600 text-white text-xs py-2 px-3 rounded-lg text-center font-medium">WhatsApp</button>
+                            <button onclick="checkAndOpenContact('${telLink}')" class="bg-gray-900 text-white text-xs py-2 px-3 rounded-lg text-center font-medium">Позвонить</button>
                         </div>
                     </div>
                 </div>
             `;
         }).join('');
     } catch (err) {
-        container.innerHTML = '<div class="text-center py-10 text-red-500 col-span-full">Ошибка загрузки</div>';
+        container.innerHTML = '<div class="text-center py-10 text-red-500 col-span-full">Ошибка загрузки данных</div>';
     }
 }
 
@@ -442,8 +357,10 @@ function filterCategory(cat) {
         btn.classList.remove('bg-gray-200', 'active');
         btn.classList.add('bg-gray-100');
     });
-    event.target.classList.remove('bg-gray-100');
-    event.target.classList.add('bg-gray-200', 'active');
+    if (event && event.target) {
+        event.target.classList.remove('bg-gray-100');
+        event.target.classList.add('bg-gray-200', 'active');
+    }
     loadAds();
 }
 
@@ -456,7 +373,9 @@ function openAddModal() {
     document.getElementById('addModal').classList.remove('hidden');
 }
 
-function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+function closeAddModal() { 
+    document.getElementById('addModal').classList.add('hidden'); 
+}
 
 async function submitAd(event) {
     event.preventDefault();
@@ -471,20 +390,25 @@ async function submitAd(event) {
     formData.append('phone', document.getElementById('ad-phone').value);
     formData.append('user_id', currentUser.id);
 
-    const imageFiles = document.getElementById('ad-images').files;
-    for (let i = 0; i < Math.min(imageFiles.length, 10); i++) {
-        formData.append('images', imageFiles[i]);
-    }
+    // Добавляем файлы из нашего массива (до 10 шт.)
+    selectedImageFiles.forEach(file => {
+        formData.append('images', file);
+    });
 
-    const res = await fetch('/api/ads/', { method: 'POST', body: formData });
-    if (res.ok) {
-        alert('Объявление отправлено на модерацию администратору!');
-        closeAddModal();
-        document.getElementById('ad-form').reset();
-        document.getElementById('image-preview-container').innerHTML = '';
-        loadAds();
-    } else {
-        alert('Ошибка создания объявления');
+    try {
+        const res = await fetch('/api/ads/', { method: 'POST', body: formData });
+        if (res.ok) {
+            alert('Объявление успешно отправлено на модерацию администратору!');
+            closeAddModal();
+            document.getElementById('ad-form').reset();
+            selectedImageFiles = [];
+            renderImagePreviews();
+            loadAds();
+        } else {
+            alert('Ошибка при создании объявления');
+        }
+    } catch (e) {
+        alert('Ошибка соединения');
     }
 }
 
@@ -498,7 +422,7 @@ function setAuthType(type) {
     if (type === 'individual') {
         indBtn.className = "flex-1 py-1 text-xs font-semibold rounded-md bg-white shadow-sm text-green-800";
         comBtn.className = "flex-1 py-1 text-xs font-semibold rounded-md text-gray-600";
-        nameInput.placeholder = "ФИО (например, Иван Иванов)";
+        nameInput.placeholder = "ФИО";
         binInput.classList.add('hidden');
         binInput.required = false;
     } else {
@@ -532,9 +456,7 @@ async function handleQuickAuth(event) {
     formData.append('password', password);
     formData.append('user_type', currentAuthType);
     formData.append('name', name);
-    if (currentAuthType === 'company') {
-        formData.append('bin_iin', bin_iin);
-    }
+    if (currentAuthType === 'company') formData.append('bin_iin', bin_iin);
 
     try {
         const res = await fetch('/api/users/', { method: 'POST', body: formData });
@@ -548,11 +470,10 @@ async function handleQuickAuth(event) {
             loadAds();
             if (pendingAction) pendingAction();
         } else {
-            const err = await res.json();
-            alert('Ошибка входа: ' + (err.detail || 'Проверьте пароль'));
+            alert('Ошибка входа. Проверьте пароль.');
         }
     } catch (e) {
-        alert('Ошибка соединения');
+        alert('Ошибка соединения с сервером');
     }
 }
 
