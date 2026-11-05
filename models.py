@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -8,49 +8,34 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     phone = Column(String, unique=True, index=True, nullable=False)
-    name = Column(String, nullable=True)
-    bin_iin = Column(String, nullable=True)
-    email = Column(String, nullable=True)
+    password = Column(String, nullable=False, default="12345") # Пароль для входа
+    user_type = Column(String, default="individual") # "individual" (Физ. лицо / КХ) или "company" (Юр. лицо / ТОО)
+    name = Column(String, nullable=True)             # ФИО или Название компании
+    bin_iin = Column(String, nullable=True)          # ИИН или БИН (12 цифр)
+    avatar_url = Column(String, nullable=True)       # Ссылка на аватарку / логотип
     
-    # Статусы и монетизация
-    is_verified = Column(Boolean, default=False)  # Заветная «синяя галочка» Verified Vendor
-    partner_status = Column(String, default="standard")  # standard, app_partner, friend_of_company
-    ad_credits = Column(Integer, default=0)        # Баланс рекламных кредитов для продвижения
-    
+    is_verified = Column(Boolean, default=False)     # Статус Verified Vendor (синяя галочка)
+    ad_credits = Column(Integer, default=0)          # Рекламный баланс
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Связи
+    # Связь с объявлениями пользователя
     ads = relationship("Ad", back_populates="owner", cascade="all, delete-orphan")
-    verification_requests = relationship("VerificationRequest", back_populates="user", cascade="all, delete-orphan")
 
 
 class Ad(Base):
     __tablename__ = "ads"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    category = Column(String, nullable=False)     # Ангары, Зерновые комплексы, Сельхозтехника и т.д.
+    title = Column(String, index=True, nullable=False)
+    category = Column(String, index=True, nullable=False)
+    location = Column(String, index=True, nullable=False)
     description = Column(String, nullable=False)
-    price = Column(Float, nullable=False)
-    location = Column(String, default="Костанай")  # Регион / город для удобной логистики и фильтрации
-    is_active = Column(Boolean, default=True)
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
+    price = Column(Integer, nullable=False)
+    phone = Column(String, nullable=False)
+    image_url = Column(String, nullable=True)        # Ссылка на фото объекта (техника, ангар)
     
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Обратная связь с пользователем
     owner = relationship("User", back_populates="ads")
-
-
-class VerificationRequest(Base):
-    __tablename__ = "verification_requests"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    company_details = Column(String, nullable=False)  # БИН, наименование, данные КХ
-    doc_url = Column(String, nullable=True)           # Ссылка на документы / свидетельство
-    status = Column(String, default="pending")        # pending (на рассмотрении), approved (одобрено), rejected (отклонено)
-    rejection_reason = Column(String, nullable=True)  # Причина отказа (если отклонено)
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    user = relationship("User", back_populates="verification_requests")
