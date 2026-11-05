@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -8,17 +8,17 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     phone = Column(String, unique=True, index=True, nullable=False)
-    password = Column(String, nullable=False, default="12345") # Пароль для входа
-    user_type = Column(String, default="individual") # "individual" (Физ. лицо / КХ) или "company" (Юр. лицо / ТОО)
-    name = Column(String, nullable=True)             # ФИО или Название компании
-    bin_iin = Column(String, nullable=True)          # ИИН или БИН (12 цифр)
-    avatar_url = Column(String, nullable=True)       # Ссылка на аватарку / логотип
+    password = Column(String, nullable=False, default="12345")
+    user_type = Column(String, default="individual") # "individual" или "company"
+    name = Column(String, nullable=True)
+    bin_iin = Column(String, nullable=True)          # БИН заполняется только для ТОО
+    avatar_url = Column(String, nullable=True)
     
-    is_verified = Column(Boolean, default=False)     # Статус Verified Vendor (синяя галочка)
-    ad_credits = Column(Integer, default=0)          # Рекламный баланс
+    is_verified = Column(Boolean, default=False)     # Синяя галочка (Verified Vendor)
+    is_admin = Column(Boolean, default=False)        # Права администратора
+    ad_credits = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Связь с объявлениями пользователя
     ads = relationship("Ad", back_populates="owner", cascade="all, delete-orphan")
 
 
@@ -29,13 +29,14 @@ class Ad(Base):
     title = Column(String, index=True, nullable=False)
     category = Column(String, index=True, nullable=False)
     location = Column(String, index=True, nullable=False)
-    description = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
     price = Column(Integer, nullable=False)
     phone = Column(String, nullable=False)
-    image_url = Column(String, nullable=True)        # Ссылка на фото объекта (техника, ангар)
+    
+    is_approved = Column(Boolean, default=False)     # Модерация: False — ждет проверки, True — опубликовано
+    images_json = Column(Text, nullable=True)        # Массив до 10 фотографий в JSON
     
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Обратная связь с пользователем
     owner = relationship("User", back_populates="ads")
