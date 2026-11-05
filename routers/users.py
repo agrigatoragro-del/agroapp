@@ -1,22 +1,39 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-import models
+from models import User
+from pydantic import BaseModel
 
-router = APIRouter(prefix="/api/users", tags=["Users & Monetization"])
+router = APIRouter(prefix="/api/users", tags=["Users"])
 
-@router.get("/{user_id}", summary="Получить профиль, статус и рекламные кредиты")
-def get_user_profile(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-    return {
-        "id": user.id,
-        "phone": user.phone,
-        "name": user.name,
-        "bin_iin": user.bin_iin,
-        "is_verified": user.is_verified,          # Синяя галочка (Verified Vendor)
-        "partner_status": user.partner_status,    # standard, app_partner, friend_of_company
-        "ad_credits": user.ad_credits,            # Баланс рекламных пакетов
-        "created_at": user.created_at
-    }
+class UserCreate(BaseModel):
+    phone: str
+    user_type: str = "individual" # "individual" или "company"
+    name: str = None
+    bin_iin: str = None
+
+@router.post("/")
+def create_or_get_user(user_data: UserCreate, db: Session = Depends(get_db)):
+    # Проверяем, есть ли уже пользователь с таким телефоном
+    user = db.query(User).filter(User.phone == user_data.phone).first()
+    
+    if user:
+        # Если есть — обновляем данные (на случай, если изменилось имя или тип)
+        user.user_type = user_data.user_type
+        user.name = user_data.name
+        user.bin_iin = user_data.bin_iin
+        db.commit()
+        db.refresh(user)
+        return user
+    
+    # Если нет — создаем нового
+    new_user = User(
+        phone=user_data.phone,
+        user_type=user_data.user_type,
+        name=user_data.name,
+        bin_iin=user_data.bin_iin
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
