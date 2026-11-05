@@ -1,68 +1,65 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from database import get_db
-import models
+from models import Ad, User
 from pydantic import BaseModel
-from typing import Optional
+import shutil
+import os
 
-router = APIRouter(prefix="/api", tags=["Agro Marketplace"])
+router = APIRouter(prefix="/api/ads", tags=["Ads"])
 
-# Pydantic схемы для валидации входящих данных
-class UserCreate(BaseModel):
-    phone: str
-    name: Optional[str] = None
-    bin_iin: Optional[str] = None
-    email: Optional[str] = None
+UPLOAD_DIR = "static/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-class AdCreate(BaseModel):
+class AdResponse(BaseModel):
+    id: int
     title: str
     category: str
+    location: str
     description: str
     price: float
-    location: str = "Костанай"
+    phone: str
     user_id: int
+    image_url: str = None
 
-# 1. Регистрация или вход пользователя по номеру телефона
-@router.post("/users/", summary="Регистрация пользователя по телефону")
-def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(models.User).filter(models.User.phone == user_data.phone).first()
-    if existing_user:
-        return {"message": "Пользователь с таким номером уже существует", "user_id": existing_user.id}
-    
-    new_user = models.User(
-        phone=user_data.phone,
-        name=user_data.name,
-        bin_iin=user_data.bin_iin,
-        email=user_data.email
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return {"message": "Пользователь успешно зарегистрирован", "user_id": new_user.id}
+    class Config:
+        from_attributes = True
 
-# 2. Создание нового объявления
-@router.post("/ads/", summary="Создать объявление (техника, ангары и т.д.)")
-def create_ad(ad_data: AdCreate, db: Session = Depends(get_db)):
-    # Проверяем, существует ли пользователь
-    user = db.query(models.User).filter(models.User.id == ad_data.user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, dtype="string", detail="Пользователь не найден")
-    
-    new_ad = models.Ad(
-        title=ad_data.title,
-        category=ad_data.category,
-        description=ad_data.description,
-        price=ad_data.price,
-        location=ad_data.location,
-        user_id=ad_data.user_id
+@router.get("/")
+def get_ads(db: Session = Depends(get_db)):
+    ads = db.query(Ad).order_by(Ad.id.desc()).all()
+    return ads
+
+@router.post("/")
+async def create_ad(
+    title: str = Form(...),
+    category: str = Form(...),
+    location: str = Form(...),
+    description: str = Form(...),
+    price: float = Form(...),
+    phone: str = Form(...),
+    user_id: int = Form(...),
+    image: UploadFile = File(None),
+    db: Session = Depends(get_db)
+):
+    image_url = None
+    if image:
+        file_path = os.path.join(UPLOAD_DIR, image.filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+        image_url = f"/{file_path}"
+
+    new_ad = Ad(
+        title=title,
+        category=category,
+        location=location,
+        description=description,
+        price=price,
+        phone=phone,
+        user_id=user_id,
+        image_url=image_url
     )
     db.add(new_ad)
     db.commit()
     db.refresh(new_ad)
-    return {"message": "Объявление успешно создано", "ad_id": new_ad.id}
-
-# 3. Получение списка всех объявлений
-@router.get("/ads/", summary="Получить список всех объявлений")
-def get_ads(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
-    ads = db.query(models.Ad).filter(models.Ad.is_active == True).offset(skip).limit(limit).all()
-    return ads
+    return new_ad
