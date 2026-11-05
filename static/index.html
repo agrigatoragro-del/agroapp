@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Агро-Маркетплейс Казахстана</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen pb-20">
+
+    <!-- Шапка приложения -->
+    <header class="bg-green-700 text-white p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fa-solid font-wheat"></i> АгроМаркет KZ
+            </h1>
+            <span id="user-status-badge" class="text-xs bg-green-800 px-3 py-1 rounded-full border border-green-500">
+                Гость
+            </span>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="max-w-4xl mx-auto p-4">
+        
+        <!-- Панель быстрого действия и поиска -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="search-input" placeholder="Поиск: ангары, зернокомплексы, тракторы..." class="w-full p-2 border rounded-lg focus:outline-none focus:border-green-600">
+                <button onclick="loadAds()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Найти</button>
+            </div>
+            
+            <!-- Категории -->
+            <div class="flex gap-2 overflow-x-auto pb-2 text-sm">
+                <button onclick="filterCategory('')" class="bg-gray-200 px-3 py-1 rounded-full whitespace-nowrap active">Все</button>
+                <button onclick="filterCategory('Ангары')" class="bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap">Ангары</button>
+                <button onclick="filterCategory('Зерновые комплексы')" class="bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap">Зернокомплексы</button>
+                <button onclick="filterCategory('Сельхозтехника')" class="bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap">Сельхозтехника</button>
+            </div>
+        </div>
+
+        <!-- Лента объявлений -->
+        <div id="ads-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="text-center py-10 text-gray-500 col-span-full">Загрузка объявлений...</div>
+        </div>
+    </main>
+
+    <!-- Нижнее меню переключения (как в мобильном APK) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 max-w-4xl mx-auto">
+        <button onclick="showTab('feed')" class="flex flex-col items-center text-green-600">
+            <i class="fa-solid fa-store text-lg"></i>
+            <span class="text-xs">Объявления</span>
+        </button>
+        <button onclick="openAddModal()" class="flex flex-col items-center text-gray-500 hover:text-green-600">
+            <i class="fa-solid fa-circle-plus text-2xl text-green-600"></i>
+            <span class="text-xs">Подать</span>
+        </button>
+        <button onclick="showProfile()" class="flex flex-col items-center text-gray-500 hover:text-green-600">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-xs">Профиль</span>
+        </button>
+    </nav>
+
+    <script>
+        const API_BASE = '/api';
+
+        // Загрузка объявлений с сервера
+        async function loadAds() {
+            const container = document.getElementById('ads-list');
+            try {
+                const res = await fetch(`${API_BASE}/ads/`);
+                const ads = await res.json();
+                
+                if (!ads || ads.length === 0) {
+                    container.innerHTML = '<div class="text-center py-10 text-gray-500 col-span-full">Объявлений пока нет. Будьте первыми!</div>';
+                    return;
+                }
+
+                container.innerHTML = ads.map(ad => `
+                    <div class="bg-white rounded-xl shadow-sm border p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-0.5 rounded">${ad.category}</span>
+                                <span class="text-xs text-gray-400"><i class="fa-solid fa-location-dot"></i> ${ad.location}</span>
+                            </div>
+                            <h3 class="font-bold text-lg text-gray-800 mb-1">${ad.title}</h3>
+                            <p class="text-gray-600 text-sm mb-3 line-clamp-2">${ad.description}</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t pt-3 mt-2">
+                            <span class="text-xl font-extrabold text-green-700">${ad.price.toLocaleString()} ₸</span>
+                            <button class="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg">Контакты</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                container.innerHTML = '<div class="text-center py-10 text-red-500 col-span-full">Ошибка загрузки данных с сервера</div>';
+            }
+        }
+
+        function filterCategory(cat) {
+            // Заготовка для фильтрации
+            loadAds();
+        }
+
+        function openAddModal() {
+            alert("Форма подача объявления готовится!");
+        }
+
+        function showProfile() {
+            alert("Модуль профиля и статус Verified Vendor");
+        }
+
+        // Запуск при старте
+        loadAds();
+    </script>
+</body>
+</html>
