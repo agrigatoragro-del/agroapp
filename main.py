@@ -1,25 +1,25 @@
 from fastapi import FastAPI
-import uvicorn
 from database import engine, Base
 import models
-from routers import ads
+from routers import ads, verification, users
 
-# Автоматическое создание таблиц при старте
+# Создаем таблицы в базе данных при старте
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Agro Marketplace API", version="1.0")
+app = FastAPI(
+    title="Kazakhstan B2B Agro-Marketplace",
+    description="Платформа для агро-предприятий, техники и ангаров с системой верификации и монетизации",
+    version="1.0.0",
+)
 
-# Подключаем модуль объявлений
+# Подключаем все наши роутеры разом
 app.include_router(ads.router)
+app.include_router(verification.router)
+app.include_router(users.router)
 
 @app.get("/")
 def read_root():
-    return {"status": "online", "message": "Агро-маркетплейс работает стабильно!"}
-
-@app.get("/ping")
-def keep_alive():
-    """Для UptimeRobot против засыпания Render"""
-    return {"ping": "pong"}
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    return {
+        "status": "active",
+        "message": "API Агро-Маркетплейса Казахстана успешно работает!"
+    }
