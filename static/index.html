@@ -17,7 +17,7 @@
                 <i class="fa-solid fa-wheat-awn"></i> АгроМаркет KZ
             </h1>
             <div id="user-header-profile" class="flex items-center gap-2 cursor-pointer" onclick="switchTab('profile')">
-                <span id="user-status-badge" class="text-xs bg-green-800 px-3 py-1 rounded-full border border-green-500">
+                <span id="user-status-badge" class="text-xs bg-green-800 px-3 py-1 rounded-full border border-green-500 text-white">
                     Гость
                 </span>
             </div>
@@ -28,21 +28,25 @@
     <main id="view-feed" class="max-w-4xl mx-auto p-4">
         <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
-                <input type="text" id="search-input" placeholder="Поиск: ангары, тракторы..." class="p-2 border rounded-lg focus:outline-none focus:border-green-600">
+                <input type="text" id="search-input" placeholder="Поиск: ангары, тракторы..." class="p-2 border rounded-lg focus:outline-none focus:border-green-600 text-sm">
                 
-                <!-- География Казахстана: динамический выбор областей и районов -->
                 <select id="filter-region" class="p-2 border rounded-lg bg-white text-sm">
                     <option value="">Весь Казахстан (Все регионы)</option>
+                    <option value="Костанайская область">Костанайская область</option>
+                    <option value="г. Костанай">г. Костанай</option>
+                    <option value="Акмолинская область">Акмолинская область</option>
+                    <option value="г. Астана">г. Астана</option>
+                    <option value="Северо-Казахстанская область">Северо-Казахстанская область</option>
                 </select>
 
-                <button onclick="loadAds()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Найти</button>
+                <button onclick="loadAds()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium">Найти</button>
             </div>
             
             <div class="flex gap-2 overflow-x-auto pb-2 text-sm">
-                <button onclick="filterCategory('')" class="cat-btn bg-gray-200 px-3 py-1 rounded-full whitespace-nowrap active">Все</button>
-                <button onclick="filterCategory('Ангары')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap">Ангары</button>
-                <button onclick="filterCategory('Зерновые комплексы')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap">Зернокомплексы</button>
-                <button onclick="filterCategory('Сельхозтехника')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap">Сельхозтехника</button>
+                <button onclick="filterCategory('')" class="cat-btn bg-gray-200 px-3 py-1 rounded-full whitespace-nowrap active font-medium">Все</button>
+                <button onclick="filterCategory('Ангары')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap font-medium">Ангары</button>
+                <button onclick="filterCategory('Зерновые комплексы')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap font-medium">Зернокомплексы</button>
+                <button onclick="filterCategory('Сельхозтехника')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap font-medium">Сельхозтехника</button>
             </div>
         </div>
 
@@ -100,10 +104,9 @@
                 </div>
             </div>
 
-            <!-- Админ-панель (появляется только у администраторов) -->
             <div id="admin-panel-section" class="bg-amber-50 rounded-xl p-4 border border-amber-300 hidden">
                 <h3 class="font-bold text-md text-amber-900 mb-3"><i class="fa-solid fa-shield-halved"></i> Панель модератора (Админ)</h3>
-                <p class="text-xs text-amber-800 mb-3">Объявления оживающие модерации:</p>
+                <p class="text-xs text-amber-800 mb-3">Очередь объявлений на модерацию:</p>
                 <div id="admin-moderation-list" class="space-y-2">
                     <p class="text-xs text-gray-500">Загрузка очереди...</p>
                 </div>
@@ -127,45 +130,49 @@
         </div>
     </main>
 
-    <!-- Модалка подачи (с выбором региона из списка РК и до 10 фото с предпросмотром) -->
-    <div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+    <!-- Модальное окно подачи объявления -->
+    <main id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 relative shadow-xl max-h-[90vh] overflow-y-auto">
             <h2 class="text-xl font-bold mb-4 text-green-800">Подать объявление</h2>
             <form id="ad-form" onsubmit="submitAd(event)" class="space-y-3">
-                <input type="text" id="ad-title" placeholder="Название (например, Ангар 15х30)" required class="w-full p-2 border rounded-lg">
+                <input type="text" id="ad-title" placeholder="Название (например, Ангар 15х30)" required class="w-full p-2 border rounded-lg text-sm">
                 
-                <select id="ad-category" required class="w-full p-2 border rounded-lg">
+                <select id="ad-category" required class="w-full p-2 border rounded-lg text-sm bg-white">
                     <option value="">Выберите категорию</option>
                     <option value="Ангары">Ангары</option>
                     <option value="Зерновые комплексы">Зерновые комплексы</option>
                     <option value="Сельхозтехника">Сельхозтехника</option>
                 </select>
 
-                <!-- Выбор региона и района из полного справочника РК -->
                 <select id="ad-location" required class="w-full p-2 border rounded-lg text-sm bg-white">
                     <option value="">Выберите область / район / город</option>
+                    <option value="Костанайская область">Костанайская область</option>
+                    <option value="г. Костанай">г. Костанай</option>
+                    <option value="Акмолинская область">Акмолинская область</option>
+                    <option value="г. Астана">г. Астана</option>
+                    <option value="Северо-Казахстанская область">Северо-Казахстанская область</option>
                 </select>
 
-                <textarea id="ad-description" placeholder="Описание, характеристики, условия..." rows="3" required class="w-full p-2 border rounded-lg"></textarea>
+                <textarea id="ad-description" placeholder="Описание, характеристики, условия..." rows="3" required class="w-full p-2 border rounded-lg text-sm"></textarea>
                 
-                <input type="number" id="ad-price" placeholder="Цена в тенге (₸)" required class="w-full p-2 border rounded-lg">
-                <input type="text" id="ad-phone" placeholder="Ваш телефон для связи (+7...)" required class="w-full p-2 border rounded-lg">
+                <input type="number" id="ad-price" placeholder="Цена в тенге (₸)" required class="w-full p-2 border rounded-lg text-sm">
+                <input type="text" id="ad-phone" placeholder="Ваш телефон для связи (+7...)" required class="w-full p-2 border rounded-lg text-sm">
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Фотографии объекта (до 10 шт. с предпросмотром):</label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Фотографии объекта (до 10 шт.):</label>
                     <input type="file" id="ad-images" accept="image/*" multiple max="10" onchange="previewImages(event)" class="w-full p-2 border rounded-lg text-sm bg-gray-50">
                     <div id="image-preview-container" class="grid grid-cols-5 gap-2 mt-2"></div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-gray-300 rounded-lg text-sm">Отмена</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium">Опубликовать на модерацию</button>
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-gray-300 rounded-lg text-sm font-medium">Отмена</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium">Опубликовать</button>
                 </div>
             </form>
         </div>
-    </div>
+    </main>
 
-    <!-- Модалка быстрой авторизации -->
+    <!-- Модальное окно авторизации -->
     <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl max-w-sm w-full p-6 relative shadow-xl">
             <h3 class="text-lg font-bold mb-2 text-green-800">Вход / Регистрация</h3>
@@ -183,31 +190,29 @@
                 <input type="text" id="auth-bin" placeholder="БИН компании (12 цифр)" class="w-full p-2 border rounded-lg text-sm hidden">
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeAuthModal()" class="px-3 py-1.5 bg-gray-300 rounded-lg text-xs">Отмена</button>
+                    <button type="button" onclick="closeAuthModal()" class="px-3 py-1.5 bg-gray-300 rounded-lg text-xs font-medium">Отмена</button>
                     <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium">Войти</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Нижняя панель -->
+    <!-- Нижняя панель навигации -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 max-w-4xl mx-auto shadow-lg">
         <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center text-green-600">
             <i class="fa-solid fa-store text-lg"></i>
-            <span class="text-xs">Объявления</span>
+            <span class="text-xs font-medium">Объявления</span>
         </button>
         <button onclick="openAddModal()" class="flex flex-col items-center text-gray-500 hover:text-green-600">
             <i class="fa-solid fa-circle-plus text-2xl text-green-600"></i>
-            <span class="text-xs">Подать</span>
+            <span class="text-xs font-medium">Подать</span>
         </button>
         <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center text-gray-500 hover:text-green-600">
             <i class="fa-solid fa-user text-lg"></i>
-            <span class="text-xs">Профиль</span>
+            <span class="text-xs font-medium">Профиль</span>
         </button>
     </nav>
 
-    <!-- Подключаем справочник географии и основной скрипт -->
-    <script src="/static/js/regions.js"></script>
     <script src="/static/js/api.js"></script>
     <script src="/static/js/app.js"></script>
 </body>
