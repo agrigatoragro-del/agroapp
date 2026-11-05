@@ -51,9 +51,15 @@ async function loadAds() {
             const waLink = `https://wa.me/${phoneClean}?text=${waText}`;
             const telLink = `tel:${phoneClean}`;
 
+            // Рендер картинки, если она загружена
+            const imageHtml = ad.image_url 
+                ? `<div class="h-48 w-full overflow-hidden rounded-lg mb-3 bg-gray-100"><img src="${ad.image_url}" alt="${ad.title}" class="w-full h-full object-cover"></div>` 
+                : '';
+
             return `
                 <div class="bg-white rounded-xl shadow-sm border p-4 flex flex-col justify-between">
                     <div>
+                        ${imageHtml}
                         <div class="flex justify-between items-start mb-2">
                             <span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-0.5 rounded">${ad.category}</span>
                             <span class="text-xs text-gray-500"><i class="fa-solid fa-location-dot text-green-600"></i> ${ad.location || 'Казахстан'}</span>
@@ -115,20 +121,29 @@ async function submitAd(event) {
         return;
     }
 
-    const data = {
-        title: document.getElementById('ad-title').value,
-        category: document.getElementById('ad-category').value,
-        location: document.getElementById('ad-location').value,
-        description: document.getElementById('ad-description').value,
-        price: parseFloat(document.getElementById('ad-price').value),
-        phone: document.getElementById('ad-phone').value,
-        user_id: currentUser.id
-    };
+    // Используем FormData для отправки текстовых полей вместе с файлом изображения
+    const formData = new FormData();
+    formData.append('title', document.getElementById('ad-title').value);
+    formData.append('category', document.getElementById('ad-category').value);
+    formData.append('location', document.getElementById('ad-location').value);
+    formData.append('description', document.getElementById('ad-description').value);
+    formData.append('price', document.getElementById('ad-price').value);
+    formData.append('phone', document.getElementById('ad-phone').value);
+    formData.append('user_id', currentUser.id);
+
+    const imageFile = document.getElementById('ad-image').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
 
     try {
-        const res = await createAdApi(data);
+        const res = await fetch('/api/ads/', {
+            method: 'POST',
+            body: formData // передаем FormData без заголовка Content-Type (браузер сам установит multipart/form-data)
+        });
+
         if (res.ok) {
-            alert('Объявление успешно опубликовано!');
+            alert('Объявление с фотографией успешно опубликовано!');
             closeAddModal();
             document.getElementById('ad-form').reset();
             loadAds();
