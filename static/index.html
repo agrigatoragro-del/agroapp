@@ -6,10 +6,11 @@
     <title>Агро-Маркетплейс Казахстана</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body class="bg-gray-100 min-h-screen pb-20">
 
-    <!-- Шапка приложения -->
+    <!-- Шапка -->
     <header class="bg-green-700 text-white p-4 sticky top-0 z-50 shadow-md">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold flex items-center gap-2">
@@ -23,41 +24,22 @@
 
     <!-- Основной контент -->
     <main class="max-w-4xl mx-auto p-4">
-        
-        <!-- Панель поиска и фильтров -->
         <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
                 <input type="text" id="search-input" placeholder="Поиск: ангары, тракторы..." class="p-2 border rounded-lg focus:outline-none focus:border-green-600">
                 
-                <!-- Фильтр по всем регионам RК -->
+                <!-- Фильтр по регионам -->
                 <select id="filter-region" class="p-2 border rounded-lg bg-white text-sm">
                     <option value="">Весь Казахстан</option>
-                    <option value="Астана">г. Астана</option>
-                    <option value="Алматы">г. Алматы</option>
-                    <option value="Шымкент">г. Шымкент</option>
                     <option value="Костанайская область">Костанайская область</option>
                     <option value="Акмолинская область">Акмолинская область</option>
                     <option value="Северо-Казахстанская область">Северо-Казахстанская область</option>
-                    <option value="Карагандинская область">Карагандинская область</option>
-                    <option value="Павлодарская область">Павлодарская область</option>
-                    <option value="Актюбинская область">Актюбинская область</option>
-                    <option value="Западно-Казахстанская область">Западно-Казахстанская область</option>
-                    <option value="Восточно-Казахстанская область">Восточно-Казахстанская область</option>
-                    <option value="Абайская область">Абайская область</option>
-                    <option value="Алматинская область">Алматинская область</option>
-                    <option value="Жетысуская область">Жетысуская область</option>
-                    <option value="Жамбылская область">Жамбылская область</option>
-                    <option value="Туркестанская область">Туркестанская область</option>
-                    <option value="Кызылординская область">Кызылординская область</option>
-                    <option value="Атырауская область">Атырауская область</option>
-                    <option value="Мангистауская область">Мангистауская область</option>
-                    <option value="Улытауская область">Улытауская область</option>
+                    <option value="г. Астана">г. Астана</option>
                 </select>
 
                 <button onclick="loadAds()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Найти</button>
             </div>
             
-            <!-- Категории -->
             <div class="flex gap-2 overflow-x-auto pb-2 text-sm">
                 <button onclick="filterCategory('')" class="cat-btn bg-gray-200 px-3 py-1 rounded-full whitespace-nowrap active">Все</button>
                 <button onclick="filterCategory('Ангары')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap">Ангары</button>
@@ -66,19 +48,15 @@
             </div>
         </div>
 
-        <!-- Лента объявлений -->
-        <div id="ads-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="text-center py-10 text-gray-500 col-span-full">Загрузка объявлений...</div>
-        </div>
+        <div id="ads-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </main>
 
-    <!-- Модальное окно подачи объявления -->
+    <!-- Модалка добавления (со всеми регионами) -->
     <div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 relative shadow-xl max-h-[90vh] overflow-y-auto">
             <h2 class="text-xl font-bold mb-4 text-green-800">Подать объявление</h2>
             <form id="ad-form" onsubmit="submitAd(event)" class="space-y-3">
-                <input type="text" id="ad-title" placeholder="Название (например, Ангар 15х30 или МТЗ-82)" required class="w-full p-2 border rounded-lg">
-                
+                <input type="text" id="ad-title" placeholder="Название" required class="w-full p-2 border rounded-lg">
                 <select id="ad-category" required class="w-full p-2 border rounded-lg">
                     <option value="">Выберите категорию</option>
                     <option value="Ангары">Ангары</option>
@@ -86,271 +64,21 @@
                     <option value="Сельхозтехника">Сельхозтехника</option>
                 </select>
 
-                <!-- Полный справочник всех областей, районов и городов Казахстана -->
+                <!-- Сюда подставляется полный список регионов/районов -->
                 <select id="ad-location" required class="w-full p-2 border rounded-lg text-sm bg-white">
                     <option value="">Выберите регион, город или район</option>
-
-                    <optgroup label="Города республиканского значения">
-                        <option value="г. Астана">г. Астана</option>
-                        <option value="г. Алматы">г. Алматы</option>
-                        <option value="г. Шымкент">г. Шымкент</option>
-                    </optgroup>
-
-                    <optgroup label="Костанайская область">
-                        <option value="г. Костанай">г. Костанай</option>
-                        <option value="г. Рудный">г. Рудный</option>
-                        <option value="г. Лисаковск">г. Лисаковск</option>
-                        <option value="г. Аркалык">г. Аркалык</option>
-                        <option value="Алтынсаринский район (с. Убаганское)">Алтынсаринский район (с. Убаганское)</option>
-                        <option value="Амангельдинский район (с. Амангельды)">Амангельдинский район (с. Амангельды)</option>
-                        <option value="Аулиекольский район (с. Аулиеколь)">Аулиекольский район (с. Аулиеколь)</option>
-                        <option value="Денисовский район (с. Денисовка)">Денисовский район (с. Денисовка)</option>
-                        <option value="Джангельдинский район (с. Торгай)">Джангельдинский район (с. Торгай)</option>
-                        <option value="Житикаринский район (г. Житикара)">Житикаринский район (г. Житикара)</option>
-                        <option value="Жамбылский район (с. Пресновка)">Жамбылский район (с. Пресновка)</option>
-                        <option value="Карабалыкский район (п. Карабалык)">Карабалыкский район (п. Карабалык)</option>
-                        <option value="Карасуский район (с. Карасу)">Карасуский район (с. Карасу)</option>
-                        <option value="Костанайский район (г. Тобыл)">Костанайский район (г. Тобыл)</option>
-                        <option value="Мендыкаринский район (с. Боровской)">Мендыкаринский район (с. Боровской)</option>
-                        <option value="Наурзумский район (с. Караменды)">Наурзумский район (с. Караменды)</option>
-                        <option value="Район Беимбета Майлина (с. Айет)">Район Беимбета Майлина (с. Айет)</option>
-                        <option value="Сарыкольский район (п. Сарыколь)">Сарыкольский район (п. Сарыколь)</option>
-                        <option value="Узункольский район (с. Узунколь)">Узункольский район (с. Узунколь)</option>
-                        <option value="Федоровский район (с. Федоровка)">Федоровский район (с. Федоровка)</option>
-                    </optgroup>
-
-                    <optgroup label="Акмолинская область">
-                        <option value="г. Кокшетау">г. Кокшетау</option>
-                        <option value="г. Степногорск">г. Степногорск</option>
-                        <option value="Аккольский район (г. Акколь)">Аккольский район (г. Акколь)</option>
-                        <option value="Аршалынский район (п. Аршалы)">Аршалынский район (п. Аршалы)</option>
-                        <option value="Астраханский район (с. Астраханка)">Астраханский район (с. Астраханка)</option>
-                        <option value="Атбасарский район (г. Атбасар)">Атбасарский район (г. Атбасар)</option>
-                        <option value="Буландынский район (г. Макинск)">Буландынский район (г. Макинск)</option>
-                        <option value="Бурабайский район (г. Щучинск)">Бурабайский район (г. Щучинск)</option>
-                        <option value="Егиндыкольский район (с. Егиндыколь)">Егиндыкольский район (с. Егиндыколь)</option>
-                        <option value="Ерейментауский район (г. Ерейментау)">Ерейментауский район (г. Ерейментау)</option>
-                        <option value="Есильский район (г. Есиль)">Есильский район (г. Есиль)</option>
-                        <option value="Жаксынский район (с. Жаксы)">Жаксынский район (с. Жаксы)</option>
-                        <option value="Жаркаинский район (г. Державинск)">Жаркаинский район (г. Державинск)</option>
-                        <option value="Зерендинский район (с. Зеренда)">Зерендинский район (с. Зеренда)</option>
-                        <option value="Коргалжынский район (с. Коргалжын)">Коргалжынский район (с. Коргалжын)</option>
-                        <option value="Сандыктауский район (с. Балкашино)">Сандыктауский район (с. Балкашино)</option>
-                        <option value="Целиноградский район (с. Акмол)">Целиноградский район (с. Акмол)</option>
-                        <option value="Шортандинский район (п. Шортанды)">Шортандинский район (п. Шортанды)</option>
-                    </optgroup>
-
-                    <optgroup label="Северо-Казахстанская область">
-                        <option value="г. Петропавловск">г. Петропавловск</option>
-                        <option value="Айыртауский район (с. Саумалколь)">Айыртауский район (с. Саумалколь)</option>
-                        <option value="Акжарский район (с. Талшык)">Акжарский район (с. Талшык)</option>
-                        <option value="Аккайынский район (с. Смирново)">Аккайынский район (с. Смирново)</option>
-                        <option value="Есильский район (с. Явленка)">Есильский район (с. Явленка)</option>
-                        <option value="Жамбылский район (с. Пресновка)">Жамбылский район (с. Пресновка)</option>
-                        <option value="Кызылжарский район (с. Бесколь)">Кызылжарский район (с. Бесколь)</option>
-                        <option value="Мамлютский район (г. Мамлютка)">Мамлютский район (г. Мамлютка)</option>
-                        <option value="Район Магжана Жумабаева (г. Булаево)">Район Магжана Жумабаева (г. Булаево)</option>
-                        <option value="Район Шал акына (г. Сергеевка)">Район Шал акына (г. Сергеевка)</option>
-                        <option value="Тимирязевский район (с. Тимирязево)">Тимирязевский район (с. Тимирязево)</option>
-                        <option value="Уалихановский район (с. Кишкенеколь)">Уалихановский район (с. Кишкенеколь)</option>
-                        <option value="Улихановский район (с. Явленка)">Улихановский район (с. Явленка)</option>
-                    </optgroup>
-
-                    <optgroup label="Карагандинская область">
-                        <option value="г. Караганда">г. Караганда</option>
-                        <option value="г. Темиртау">г. Темиртау</option>
-                        <option value="г. Балхаш">г. Балхаш</option>
-                        <option value="г. Сарань">г. Сарань</option>
-                        <option value="г. Шахтинск">г. Шахтинск</option>
-                        <option value="Абайский район (г. Абай)">Абайский район (г. Абай)</option>
-                        <option value="Актогайский район (с. Актогай)">Актогайский район (с. Актогай)</option>
-                        <option value="Бухар-Жырауский район (п. Ботакара)">Бухар-Жырауский район (п. Ботакара)</option>
-                        <option value="Каркаралинский район (г. Каркаралинск)">Каркаралинский район (г. Каркаралинск)</option>
-                        <option value="Нуринский район (п. Нура)">Нуринский район (п. Нура)</option>
-                        <option value="Осакаровский район (п. Осакаровка)">Осакаровский район (п. Осакаровка)</option>
-                        <option value="Шетский район (с. Аксу-Аюлы)">Шетский район (с. Аксу-Аюлы)</option>
-                    </optgroup>
-
-                    <optgroup label="Павлодарская область">
-                        <option value="г. Павлодар">г. Павлодар</option>
-                        <option value="г. Экибастуз">г. Экибастуз</option>
-                        <option value="г. Аксу">г. Аксу</option>
-                        <option value="Актогайский район (с. Актогай)">Актогайский район (с. Актогай)</option>
-                        <option value="Баянаульский район (с. Баянаул)">Баянаульский район (с. Баянаул)</option>
-                        <option value="Железинский район (с. Железинка)">Железинский район (с. Железинка)</option>
-                        <option value="Иртышский район (с. Иртышск)">Иртышский район (с. Иртышск)</option>
-                        <option value="Район Аккулы (с. Аккулы)">Район Аккулы (с. Аккулы)</option>
-                        <option value="Район Теренколь (с. Теренколь)">Район Теренколь (с. Теренколь)</option>
-                        <option value="Майский район (с. Коктобе)">Майский район (с. Коктобе)</option>
-                        <option value="Павлодарский район (г. Павлодар)">Павлодарский район (г. Павлодар)</option>
-                        <option value="Успенский район (с. Успенка)">Успенский район (с. Успенка)</option>
-                        <option value="Щербактинский район (с. Шарбакты)">Щербактинский район (с. Шарбакты)</option>
-                    </optgroup>
-
-                    <optgroup label="Актюбинская область">
-                        <option value="г. Актобе">г. Актобе</option>
-                        <option value="Алгинский район (г. Алга)">Алгинский район (г. Алга)</option>
-                        <option value="Айтекебийский район (с. Комсомольское)">Айтекебийский район (с. Комсомольское)</option>
-                        <option value="Байганинский район (с. Карауылкельды)">Байганинский район (с. Карауылкельды)</option>
-                        <option value="Каргалинский район (с. Бадамша)">Каргалинский район (с. Бадамша)</option>
-                        <option value="Кобдинский район (с. Кобда)">Кобдинский район (с. Кобда)</option>
-                        <option value="Мартукский район (с. Мартук)">Мартукский район (с. Мартук)</option>
-                        <option value="Мугалжарский район (г. Кандыагаш)">Мугалжарский район (г. Кандыагаш)</option>
-                        <option value="Темирский район (п. Шубаркудук)">Темирский район (п. Шубаркудук)</option>
-                        <option value="Уилский район (с. Уил)">Уилский район (с. Уил)</option>
-                        <option value="Хромтауский район (г. Хромтау)">Хромтауский район (г. Хромтау)</option>
-                        <option value="Шалкарский район (г. Шалкар)">Шалкарский район (г. Шалкар)</option>
-                    </optgroup>
-
-                    <optgroup label="Западно-Казахстанская область">
-                        <option value="г. Уральск">г. Уральск</option>
-                        <option value="г. Аксай">г. Аксай</option>
-                        <option value="Акжайыкский район (с. Чапаев)">Акжайыкский район (с. Чапаев)</option>
-                        <option value="Байтерекский район (с. Переметное)">Байтерекский район (с. Переметное)</option>
-                        <option value="Бокейординский район (с. Сайхин)">Бокейординский район (с. Сайхин)</option>
-                        <option value="Бурлинский район (г. Аксай)">Бурлинский район (г. Аксай)</option>
-                        <option value="Жангалинский район (с. Жангала)">Жангалинский район (с. Жангала)</option>
-                        <option value="Жанибекский район (с. Жанибек)">Жанибекский район (с. Жанибек)</option>
-                        <option value="Казталовский район (с. Казталовка)">Казталовский район (с. Казталовка)</option>
-                        <option value="Каратобинский район (с. Каратобе)">Каратобинский район (с. Каратобе)</option>
-                        <option value="Сырымский район (с. Жымпиты)">Сырымский район (с. Жымпиты)</option>
-                        <option value="Таскалинский район (с. Таскала)">Таскалинский район (с. Таскала)</option>
-                        <option value="Теректинский район (с. Федоровка)">Теректинский район (с. Федоровка)</option>
-                        <option value="Чингирлауский район (с. Шынгырлау)">Чингирлауский район (с. Шынгырлау)</option>
-                    </optgroup>
-
-                    <optgroup label="Восточно-Казахстанская область">
-                        <option value="г. Усть-Каменогорск">г. Усть-Каменогорск</option>
-                        <option value="г. Риддер">г. Риддер</option>
-                        <option value="г. Алтай">г. Алтай</option>
-                        <option value="Алтайский район (г. Алтай)">Алтайский район (г. Алтай)</option>
-                        <option value="Глубоковский район (п. Глубокое)">Глубоковский район (п. Глубокое)</option>
-                        <option value="Зайсанский район (г. Зайсан)">Зайсанский район (г. Зайсан)</option>
-                        <option value="Катон-Карагайский район (с. Катон-Карагай)">Катон-Карагайский район (с. Катон-Карагай)</option>
-                        <option value="Курчумский район (с. Курчум)">Курчумский район (с. Курчум)</option>
-                        <option value="Самарский район (с. Самарское)">Самарский район (с. Самарское)</option>
-                        <option value="Тарбагатайский район (с. Акжар)">Тарбагатайский район (с. Акжар)</option>
-                        <option value="Уланский район (п. Касыма Кайсенова)">Уланский район (п. Касыма Кайсенова)</option>
-                        <option value="Шемонаихинский район (г. Шемонаиха)">Шемонаихинский район (г. Шемонаиха)</option>
-                    </optgroup>
-
-                    <optgroup label="Абайская область">
-                        <option value="г. Семей">г. Семей</option>
-                        <option value="г. Курчатов">г. Курчатов</option>
-                        <option value="Абайский район (с. Карауыл)">Абайский район (с. Карауыл)</option>
-                        <option value="Аягозский район (г. Аягоз)">Аягозский район (г. Аягоз)</option>
-                        <option value="Бескарагайский район (с. Бескарагай)">Бескарагайский район (с. Бескарагай)</option>
-                        <option value="Бородулихинский район (с. Бородулиха)">Бородулихинский район (с. Бородулиха)</option>
-                        <option value="Жарминский район (с. Калбатау)">Жарминский район (с. Калбатау)</option>
-                        <option value="Аксуатский район (с. Аксуат)">Аксуатский район (с. Аксуат)</option>
-                        <option value="Кокпектинский район (с. Кокпекты)">Кокпектинский район (с. Кокпекты)</option>
-                        <option value="Урджарский район (с. Урджар)">Урджарский район (с. Урджар)</option>
-                    </optgroup>
-
-                    <optgroup label="Алматинская область">
-                        <option value="г. Конаев">г. Конаев</option>
-                        <option value="Балхашский район (с. Баканас)">Балхашский район (с. Баканас)</option>
-                        <option value="Енбекшиказахский район (г. Есик)">Енбекшиказахский район (г. Есик)</option>
-                        <option value="Жамбылский район (с. Узынагаш)">Жамбылский район (с. Узынагаш)</option>
-                        <option value="Карасайский район (г. Каскелен)">Карасайский район (г. Каскелен)</option>
-                        <option value="Кегенский район (с. Кеген)">Кегенский район (с. Кеген)</option>
-                        <option value="Райымбекский район (с. Нарынкол)">Райымбекский район (с. Нарынкол)</option>
-                        <option value="Талгарский район (г. Талгар)">Талгарский район (г. Талгар)</option>
-                        <option value="Уйгурский район (с. Чунджа)">Уйгурский район (с. Чунджа)</option>
-                    </optgroup>
-
-                    <optgroup label="Жетысуская область">
-                        <option value="г. Талдыкорган">г. Талдыкорган</option>
-                        <option value="г. Текели">г. Текели</option>
-                        <option value="Аксуский район (с. Жансугуров)">Аксуский район (с. Жансугуров)</option>
-                        <option value="Алакольский район (г. Ушарал)">Алакольский район (г. Ушарал)</option>
-                        <option value="Ескельдинский район (с. Карабулак)">Ескельдинский район (с. Карабулак)</option>
-                        <option value="Каратальский район (г. Уштобе)">Каратальский район (г. Уштобе)</option>
-                        <option value="Кербулакский район (с. Сарыозек)">Кербулакский район (с. Сарыозек)</option>
-                        <option value="Коксуский район (с. Балпык би)">Коксуский район (с. Балпык би)</option>
-                        <option value="Панфиловский район (г. Жаркент)">Панфиловский район (г. Жаркент)</option>
-                        <option value="Саркандский район (г. Сарканд)">Саркандский район (г. Сарканд)</option>
-                    </optgroup>
-
-                    <optgroup label="Жамбылская область">
-                        <option value="г. Тараз">г. Тараз</option>
-                        <option value="Байзакский район (с. Сарыкемер)">Байзакский район (с. Сарыкемер)</option>
-                        <option value="Жамбылский район (с. Аса)">Жамбылский район (с. Аса)</option>
-                        <option value="Жуалынский район (с. Бауыржан Момышулы)">Жуалынский район (с. Б. Момышулы)</option>
-                        <option value="Кордайский район (с. Кордай)">Кордайский район (с. Кордай)</option>
-                        <option value="Меркенский район (с. Мерке)">Меркенский район (с. Мерке)</option>
-                        <option value="Мойынкумский район (с. Мойынкум)">Мойынкумский район (с. Мойынкум)</option>
-                        <option value="Трара Рыскулова район (с. Кулан)">р. Турара Рыскулова (с. Кулан)</option>
-                        <option value="Таласский район (г. Каратау)">Таласский район (г. Каратау)</option>
-                        <option value="Сарысуский район (г. Жанатас)">Сарысуский район (г. Жанатас)</option>
-                        <option value="Шуский район (г. Шу)">Шуский район (г. Шу)</option>
-                    </optgroup>
-
-                    <optgroup label="Туркестанская область">
-                        <option value="г. Туркестан">г. Туркестан</option>
-                        <option value="г. Кентау">г. Кентау</option>
-                        <option value="г. Арыс">г. Арыс</option>
-                        <option value="Байдибекский район (с. Шаян)">Байдибекский район (с. Шаян)</option>
-                        <option value="Жетысайский район (г. Жетысай)">Жетысайский район (г. Жетысай)</option>
-                        <option value="Казыгуртский район (с. Казыгурт)">Казыгуртский район (с. Казыгурт)</option>
-                        <option value="Мактааральский район (п. Мырзакент)">Мактааральский район (п. Мырзакент)</option>
-                        <option value="Ордабасинский район (с. Темирлановка)">Ордабасинский район (с. Темирлановка)</option>
-                        <option value="Отырарский район (с. Шаульдер)">Отырарский район (с. Шаульдер)</option>
-                        <option value="Сайрамский район (с. Аксукент)">Сайрамский район (с. Аксукент)</option>
-                        <option value="Сарыагашский район (г. Сарыагаш)">Сарыагашский район (г. Сарыагаш)</option>
-                        <option value="Сузакский район (с. Шолаккорган)">Сузакский район (с. Шолаккорган)</option>
-                        <option value="Толебийский район (г. Ленгер)">Толебийский район (г. Ленгер)</option>
-                        <option value="Тюлькубасский район (с. Турара Рыскулова)">Тюлькубасский район (с. Т. Рыскулова)</option>
-                        <option value="Шардаринский район (г. Шардара)">Шардаринский район (г. Шардара)</option>
-                    </optgroup>
-
-                    <optgroup label="Кызылординская область">
-                        <option value="г. Кызылорда">г. Кызылорда</option>
-                        <option value="г. Байконур">г. Байконур</option>
-                        <option value="Аральский район (г. Аральск)">Аральский район (г. Аральск)</option>
-                        <option value="Жалагашский район (п. Жалагаш)">Жалагашский район (п. Жалагаш)</option>
-                        <option value="Жанакорганский район (п. Жанакорган)">Жанакорганский район (п. Жанакорган)</option>
-                        <option value="Казалинский район (п. Айтеке би)">Казалинский район (п. Айтеке би)</option>
-                        <option value="Кармакшинский район (п. Жосалы)">Кармакшинский район (п. Жосалы)</option>
-                        <option value="Сырдарьинский район (п. Теренозек)">Сырдарьинский район (п. Теренозек)</option>
-                        <option value="Шиелийский район (п. Шиели)">Шиелийский район (п. Шиели)</option>
-                    </optgroup>
-
-                    <optgroup label="Атырауская область">
-                        <option value="г. Атырау">г. Атырау</option>
-                        <option value="г. Кульсары">г. Кульсары</option>
-                        <option value="Жылыойский район (г. Кульсары)">Жылыойский район (г. Кульсары)</option>
-                        <option value="Индерский район (п. Индерборский)">Индерский район (п. Индерборский)</option>
-                        <option value="Исатайский район (с. Аккистау)">Исатайский район (с. Аккистау)</option>
-                        <option value="Кзылкогинский район (с. Миялы)">Кзылкогинский район (с. Миялы)</option>
-                        <option value="Курмангазинский район (с. Курмангазы)">Курмангазинский район (с. Курмангазы)</option>
-                        <option value="Макатский район (п. Макат)">Макатский район (п. Макат)</option>
-                        <option value="Махамбетский район (с. Махамбет)">Махамбетский район (с. Махамбет)</option>
-                    </optgroup>
-
-                    <optgroup label="Мангистауская область">
-                        <option value="г. Актау">г. Актау</option>
-                        <option value="г. Жанаозен">г. Жанаозен</option>
-                        <option value="Бейнеуский район (с. Бейнеу)">Бейнеуский район (с. Бейнеу)</option>
-                        <option value="Каракиянский район (с. Курык)">Каракиянский район (с. Курык)</option>
-                        <option value="Мангистауский район (с. Шетпе)">Мангистауский район (с. Шетпе)</option>
-                        <option value="Мунайлинский район (с. Мангистау)">Мунайлинский район (с. Мангистау)</option>
-                        <option value="Тупкараганский район (г. Форт-Шевченко)">Тупкараганский район (г. Форт-Шевченко)</option>
-                    </optgroup>
-
-                    <optgroup label="Улытауская область">
-                        <option value="г. Жезказган">г. Жезказган</option>
-                        <option value="г. Сатпаев">г. Сатпаев</option>
-                        <option value="г. Каражал">г. Каражал</option>
-                        <option value="Жанааркинский район (п. Жанаарка)">Жанааркинский район (п. Жанаарка)</option>
-                        <option value="Улытауский район (с. Улытау)">Улытауский район (с. Улытау)</option>
-                    </optgroup>
+                    <option value="г. Костанай">г. Костанай</option>
+                    <option value="Костанайский район (г. Тобыл)">Костанайский район (г. Тобыл)</option>
+                    <option value="Костанайская область">Костанайская область (вся)</option>
+                    <option value="Акмолинская область">Акмолинская область</option>
+                    <option value="Северо-Казахстанская область">Северо-Казахстанская область</option>
+                    <option value="г. Астана">г. Астана</option>
                 </select>
 
-                <textarea id="ad-description" placeholder="Описание, характеристики, условия..." rows="3" required class="w-full p-2 border rounded-lg"></textarea>
-                
-                <input type="number" id="ad-price" placeholder="Цена в тенге (₸)" required class="w-full p-2 border rounded-lg">
-                <input type="number" id="ad-user-id" placeholder="Ваш ID пользователя (например, 1)" required class="w-full p-2 border rounded-lg">
+                <textarea id="ad-description" placeholder="Описание..." rows="3" required class="w-full p-2 border rounded-lg"></textarea>
+                <input type="number" id="ad-price" placeholder="Цена (₸)" required class="w-full p-2 border rounded-lg">
+                <input type="text" id="ad-phone" placeholder="Телефон (+7701...)" required class="w-full p-2 border rounded-lg">
+                <input type="number" id="ad-user-id" placeholder="ID пользователя" required class="w-full p-2 border rounded-lg">
 
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Отмена</button>
@@ -360,9 +88,9 @@
         </div>
     </div>
 
-    <!-- Нижняя панель навигации -->
+    <!-- Навигация -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 max-w-4xl mx-auto shadow-lg">
-        <button onclick="showTab('feed')" class="flex flex-col items-center text-green-600">
+        <button onclick="loadAds()" class="flex flex-col items-center text-green-600">
             <i class="fa-solid fa-store text-lg"></i>
             <span class="text-xs">Объявления</span>
         </button>
@@ -370,116 +98,10 @@
             <i class="fa-solid fa-circle-plus text-2xl text-green-600"></i>
             <span class="text-xs">Подать</span>
         </button>
-        <button onclick="showProfile()" class="flex flex-col items-center text-gray-500 hover:text-green-600">
-            <i class="fa-solid fa-user text-lg"></i>
-            <span class="text-xs">Профиль</span>
-        </button>
     </nav>
 
-    <script>
-        const API_BASE = '/api';
-        let currentCategory = '';
-
-        async function loadAds() {
-            const container = document.getElementById('ads-list');
-            const regionFilter = document.getElementById('filter-region').value;
-            const searchQuery = document.getElementById('search-input').value.toLowerCase();
-
-            try {
-                const res = await fetch(`${API_BASE}/ads/`);
-                let ads = await res.json();
-                
-                if (currentCategory) {
-                    ads = ads.filter(ad => ad.category === currentCategory);
-                }
-                if (regionFilter) {
-                    ads = ads.filter(ad => ad.location && ad.location.includes(regionFilter));
-                }
-                if (searchQuery) {
-                    ads = ads.filter(ad => ad.title.toLowerCase().includes(searchQuery) || ad.description.toLowerCase().includes(searchQuery));
-                }
-
-                if (!ads || ads.length === 0) {
-                    container.innerHTML = '<div class="text-center py-10 text-gray-500 col-span-full">Объявлений по вашему запросу не найдено.</div>';
-                    return;
-                }
-
-                container.innerHTML = ads.map(ad => `
-                    <div class="bg-white rounded-xl shadow-sm border p-4 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-0.5 rounded">${ad.category}</span>
-                                <span class="text-xs text-gray-500"><i class="fa-solid fa-location-dot text-green-600"></i> ${ad.location || 'Не указано'}</span>
-                            </div>
-                            <h3 class="font-bold text-lg text-gray-800 mb-1">${ad.title}</h3>
-                            <p class="text-gray-600 text-sm mb-3 line-clamp-2">${ad.description}</p>
-                        </div>
-                        <div class="flex justify-between items-center border-t pt-3 mt-2">
-                            <span class="text-xl font-extrabold text-green-700">${ad.price.toLocaleString()} ₸</span>
-                            <button class="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg hover:bg-gray-800">Контакты</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (err) {
-                container.innerHTML = '<div class="text-center py-10 text-red-500 col-span-full">Ошибка загрузки данных с сервера</div>';
-            }
-        }
-
-        function filterCategory(cat) {
-            currentCategory = cat;
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.classList.remove('bg-gray-200', 'active');
-                btn.classList.add('bg-gray-100');
-            });
-            event.target.classList.remove('bg-gray-100');
-            event.target.classList.add('bg-gray-200', 'active');
-            loadAds();
-        }
-
-        function openAddModal() {
-            document.getElementById('addModal').classList.remove('hidden');
-        }
-
-        function closeAddModal() {
-            document.getElementById('addModal').classList.add('hidden');
-        }
-
-        async function submitAd(event) {
-            event.preventDefault();
-            const data = {
-                title: document.getElementById('ad-title').value,
-                category: document.getElementById('ad-category').value,
-                location: document.getElementById('ad-location').value,
-                description: document.getElementById('ad-description').value,
-                price: parseFloat(document.getElementById('ad-price').value),
-                user_id: parseInt(document.getElementById('ad-user-id').value)
-            };
-
-            try {
-                const res = await fetch(`${API_BASE}/ads/`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if (res.ok) {
-                    alert('Объявление успешно опубликовано!');
-                    closeAddModal();
-                    document.getElementById('ad-form').reset();
-                    loadAds();
-                } else {
-                    const err = await res.json();
-                    alert('Ошибка: ' + (err.detail || 'Не удалось создать объявление'));
-                }
-            } catch (e) {
-                alert('Ошибка соединения с сервером');
-            }
-        }
-
-        function showProfile() {
-            alert('Раздел профиля и статус Verified Vendor в разработке.');
-        }
-
-        loadAds();
-    </script>
+    <!-- Подключаем независимые скрипты -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/app.js"></script>
 </body>
 </html>
