@@ -158,10 +158,18 @@
                 <input type="number" id="ad-price" placeholder="Цена в тенге (₸)" required class="w-full p-2 border rounded-lg text-sm">
                 <input type="text" id="ad-phone" placeholder="Ваш телефон для связи (+7...)" required class="w-full p-2 border rounded-lg text-sm">
 
+                <!-- Красивый блок мультизагрузки фотографий с плиткой и плюсиком -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Фотографии объекта (до 10 шт.):</label>
-                    <input type="file" id="ad-images" accept="image/*" multiple max="10" onchange="previewImages(event)" class="w-full p-2 border rounded-lg text-sm bg-gray-50">
-                    <div id="image-preview-container" class="grid grid-cols-5 gap-2 mt-2"></div>
+                    <input type="file" id="ad-images" accept="image/*" multiple class="hidden" onchange="handleFilesSelect(event)">
+                    
+                    <div id="image-preview-grid" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-1">
+                        <label for="ad-images" class="cursor-pointer border-2 border-dashed border-green-600 hover:border-green-700 bg-green-50 hover:bg-green-100 rounded-xl flex flex-col items-center justify-center h-24 text-green-700 transition">
+                            <i class="fa-solid fa-plus text-xl mb-1"></i>
+                            <span class="text-[11px] font-semibold text-center px-1">Добавить фото</span>
+                        </label>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">Можно добавлять по одному или несколько (макс. 10).</p>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
@@ -173,7 +181,7 @@
     </main>
 
     <!-- Модальное окно авторизации -->
-    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+    <main id="authModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl max-w-sm w-full p-6 relative shadow-xl">
             <h3 class="text-lg font-bold mb-2 text-green-800">Вход / Регистрация</h3>
             <p class="text-xs text-gray-600 mb-4">Введите телефон и пароль:</p>
@@ -195,7 +203,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </main>
 
     <!-- Нижняя панель навигации -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 max-w-4xl mx-auto shadow-lg">
