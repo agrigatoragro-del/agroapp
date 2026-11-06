@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление пользователями - AgroKZ Admin</title>
+    <title>Модерация объявлений - Админ-панель</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
 
-    <!-- Хэдер панели -->
-    <header class="bg-slate-900 text-white shadow-md">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-user-shield text-amber-400 text-2xl"></i>
-                <h1 class="font-bold text-xl">Панель управления пользователями</h1>
+                <i class="fa-solid fa-shield-halved text-amber-400 text-2xl"></i>
+                <h1 class="font-bold text-lg">Модерация объявлений</h1>
             </div>
             <a href="/" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 border border-slate-700">
                 <i class="fa-solid fa-house"></i>
@@ -23,108 +22,103 @@
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
-        
-        <!-- Карточка со списком пользователей -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+    <main class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden p-6">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
-                    <h2 class="font-bold text-lg text-gray-900">База клиентов</h2>
-                    <p class="text-xs text-gray-500 mt-0.5">Все зарегистрированные физические и юридические лица</p>
+                    <h2 class="font-bold text-xl text-gray-900">Очередь на проверку</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Объявления, отправленные пользователями и ожидающие публикации</p>
                 </div>
-                <button onclick="loadUsersList()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1">
+                <button onclick="loadPendingAds()" class="bg-green-600 hover:bg-green-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
                     <i class="fa-solid fa-rotate"></i>
-                    <span>Обновить</span>
+                    <span>Обновить список</span>
                 </button>
             </div>
 
-            <!-- Таблица пользователей -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-100 text-gray-600 uppercase text-[11px] font-bold tracking-wider">
-                        <tr>
-                            <th class="p-4">ID</th>
-                            <th class="p-4">Имя / Организация</th>
-                            <th class="p-4">Телефон</th>
-                            <th class="p-4">Тип аккаунта</th>
-                            <th class="p-4">БИН / ИИН</th>
-                            <th class="p-4">Статус</th>
-                            <th class="p-4 text-right">Действие</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-body" class="divide-y divide-gray-100">
-                        <tr>
-                            <td colspan="7" class="p-8 text-center text-gray-400">Загрузка базы данных...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="moderation-container" class="space-y-4">
+                <p class="text-sm text-gray-500 text-center py-8">Загрузка объявлений...</p>
             </div>
         </div>
-
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', loadUsersList);
+        document.addEventListener('DOMContentLoaded', loadPendingAds);
 
-        async function loadUsersList() {
-            const tbody = document.getElementById('users-table-body');
+        async function loadPendingAds() {
+            const container = document.getElementById('moderation-container');
+            container.innerHTML = `<p class="text-sm text-gray-500 text-center py-8">Загрузка...</p>`;
+
             try {
-                const res = await fetch('/api/users/admin/users-list');
+                const res = await fetch('/api/ads/?admin_view=true');
                 if (!res.ok) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-500 font-semibold">Ошибка загрузки пользователей</td></tr>`;
-                    return;
-                }
-                const users = await res.json();
-                
-                if (users.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-400">База пользователей пуста</td></tr>`;
+                    container.innerHTML = `<p class="text-sm text-red-500 text-center py-8">Ошибка загрузки данных</p>`;
                     return;
                 }
 
-                tbody.innerHTML = users.map(u => {
-                    const isCompany = u.user_type === 'company';
+                const allAds = await res.json();
+                const pendingAds = allAds.filter(a => !a.is_approved);
+
+                if (pendingAds.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-gray-400 space-y-2">
+                            <i class="fa-solid fa-circle-check text-4xl text-green-500 mb-2"></i>
+                            <p class="font-bold text-gray-700 text-base">Все объявления проверены!</p>
+                            <p class="text-xs">Новых заявок на модерацию нет.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = pendingAds.map(ad => {
+                    let images = [];
+                    try { images = JSON.parse(ad.images_json || '[]'); } catch(e){}
+                    const imgUrl = images.length > 0 ? images[0] : 'https://via.placeholder.com/150?text=No+Photo';
+
                     return `
-                        <tr class="hover:bg-gray-50/80 transition">
-                            <td class="p-4 font-mono text-gray-400 text-xs">#${u.id}</td>
-                            <td class="p-4 font-bold text-gray-900">${u.name}</td>
-                            <td class="p-4 text-gray-700">${u.phone}</td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${isCompany ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
-                                    ${isCompany ? 'Юр. лицо' : 'Физ. лицо / КХ'}
-                                </span>
-                            </td>
-                            <td class="p-4 text-gray-500 font-mono text-xs">${u.bin_iin || '—'}</td>
-                            <td class="p-4">
-                                ${u.is_admin 
-                                    ? '<span class="px-2.5 py-1 bg-amber-100 text-amber-900 font-bold rounded-full text-xs"><i class="fa-solid fa-crown mr-1"></i>Админ</span>' 
-                                    : '<span class="text-gray-400 text-xs">Пользователь</span>'
-                                }
-                            </td>
-                            <td class="p-4 text-right">
-                                <button onclick="toggleAdmin(${u.id})" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${u.is_admin ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-amber-500 text-white hover:bg-amber-600'}">
-                                    ${u.is_admin ? 'Снять админа' : 'Сделать админом'}
+                        <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
+                            <div class="flex items-start space-x-4">
+                                <img src="${imgUrl}" class="w-20 h-20 object-cover rounded-lg border flex-shrink-0">
+                                <div class="space-y-1">
+                                    <span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded font-bold uppercase">${ad.category}</span>
+                                    <h3 class="font-bold text-gray-900 text-base">${ad.title}</h3>
+                                    <p class="text-green-700 font-extrabold text-sm">${ad.price.toLocaleString()} ₸</p>
+                                    <p class="text-gray-500 text-xs"><i class="fa-solid fa-location-dot mr-1"></i>${ad.location}</p>
+                                    <p class="text-gray-600 text-xs bg-white p-2 rounded border mt-1">${ad.description}</p>
+                                    <p class="text-gray-400 text-[11px]"><i class="fa-solid fa-phone mr-1"></i>Телефон автора: <span class="font-semibold text-gray-700">${ad.phone}</span></p>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col gap-2 w-full md:w-auto">
+                                <button onclick="approveAd(${ad.id})" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">
+                                    <i class="fa-solid fa-check mr-1"></i> Одобрить
                                 </button>
-                            </td>
-                        </tr>
+                                <button onclick="deleteAd(${ad.id})" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl text-xs font-bold transition border border-red-200">
+                                    <i class="fa-solid fa-trash mr-1"></i> Удалить
+                                </button>
+                            </div>
+                        </div>
                     `;
                 }).join('');
 
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-500">Ошибка соединения с сервером</td></tr>`;
+                container.innerHTML = `<p class="text-sm text-red-500 text-center py-8">Ошибка соединения с сервером</p>`;
             }
         }
 
-        async function toggleAdmin(userId) {
+        async function approveAd(id) {
             try {
-                const res = await fetch(`/api/users/admin/toggle-admin/${userId}`, { method: 'POST' });
-                if (res.ok) {
-                    loadUsersList();
-                } else {
-                    alert('Не удалось изменить статус пользователя');
-                }
-            } catch (e) {
-                alert('Ошибка сети');
-            }
+                const res = await fetch(`/api/ads/${id}/approve`, { method: 'POST' });
+                if (res.ok) loadPendingAds();
+                else alert('Не удалось одобрить объявление');
+            } catch (e) { alert('Ошибка сети'); }
+        }
+
+        async function deleteAd(id) {
+            if (!confirm('Вы уверены, что хотите удалить это объявление?')) return;
+            try {
+                const res = await fetch(`/api/ads/${id}`, { method: 'DELETE' });
+                if (res.ok) loadPendingAds();
+                else alert('Не удалось удалить объявление');
+            } catch (e) { alert('Ошибка сети'); }
         }
     </script>
 </body>
