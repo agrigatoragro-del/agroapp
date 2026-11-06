@@ -1,6 +1,7 @@
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 let currentAuthMode = 'login';
 let allAdsList = [];
+let selectedFilesArray = []; // Массив для превью выбранных фото (до 10 шт)
 
 // Справочник всех 17 областей РК + 3 городов республиканского значения
 const districtsData = {
@@ -244,7 +245,6 @@ function updateUIBasedOnUser() {
     }
 }
 
-// Загрузка объявлений
 async function loadAds() {
     try {
         const res = await fetch('/api/ads/');
@@ -256,7 +256,6 @@ async function loadAds() {
     }
 }
 
-// Переключение районов в шапке фильтра каталога
 function onFilterOblastChange() {
     const oblastSelect = document.getElementById('filter-region-oblast');
     const districtSelect = document.getElementById('filter-region-district');
@@ -282,7 +281,6 @@ function onFilterOblastChange() {
     applyFilters();
 }
 
-// Переключение районов в форме создания объявления
 function onAdOblastChange() {
     const oblastVal = document.getElementById('ad-oblast').value;
     const districtSelect = document.getElementById('ad-district');
@@ -305,7 +303,74 @@ function onAdOblastChange() {
     }
 }
 
-// Трехуровневая каскадная фильтрация
+// Автоматическая проверка: если выбран город или райцентр, поле села становится необязательным
+function onAdDistrictChange() {
+    const districtVal = document.getElementById('ad-district').value;
+    const villageContainer = document.getElementById('village-container');
+    const villageInput = document.getElementById('ad-village');
+
+    if (districtVal.includes('г. ') || districtVal.includes('Областной центр') || districtVal.includes('Республиканское значение')) {
+        villageInput.required = false;
+        villageInput.value = '';
+        villageContainer.style.display = 'none';
+    } else {
+        villageInput.required = true;
+        villageContainer.style.display = 'block';
+    }
+}
+
+// Управление загрузкой фото с превью (до 10 шт)
+function handleImagesSelected(event) {
+    const files = Array.from(event.target.files);
+    
+    if (selectedFilesArray.length + files.length > 10) {
+        alert('Максимальное количество фотографий — 10!');
+        return;
+    }
+
+    files.forEach(file => {
+        selectedFilesArray.push(file);
+    });
+
+    renderPhotoPreviews();
+    event.target.value = '';
+}
+
+function renderPhotoPreviews() {
+    const container = document.getElementById('photo-preview-container');
+    const addBtnLabel = document.getElementById('add-photo-btn-label');
+
+    const existingPreviews = container.querySelectorAll('.photo-preview-card');
+    existingPreviews.forEach(card => card.remove());
+
+    selectedFilesArray.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const card = document.createElement('div');
+            card.className = "photo-preview-card relative w-20 h-20 rounded-xl border border-gray-200 overflow-hidden shadow-sm bg-white";
+            card.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover">
+                <button type="button" onclick="removePhoto(${index})" class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] hover:bg-red-700 shadow">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.insertBefore(card, addBtnLabel);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    if (selectedFilesArray.length >= 10) {
+        addBtnLabel.style.display = 'none';
+    } else {
+        addBtnLabel.style.display = 'flex';
+    }
+}
+
+function removePhoto(index) {
+    selectedFilesArray.splice(index, 1);
+    renderPhotoPreviews();
+}
+
 function applyFilters() {
     const dealTypeVal = document.getElementById('filter-deal-type').value;
     const categoryVal = document.getElementById('filter-category').value;
@@ -314,7 +379,6 @@ function applyFilters() {
 
     let filtered = allAdsList;
 
-    // 1. Продам / Куплю
     if (dealTypeVal !== 'all') {
         filtered = filtered.filter(ad => {
             const isBuy = ad.title.toLowerCase().includes('куплю') || ad.description.toLowerCase().includes('куплю');
@@ -322,19 +386,15 @@ function applyFilters() {
         });
     }
 
-    // 2. Категория
     if (categoryVal !== 'all') {
         filtered = filtered.filter(ad => ad.category === categoryVal);
     }
 
-    // 3. Область
     if (oblastVal !== 'all') {
         filtered = filtered.filter(ad => ad.location.toLowerCase().includes(oblastVal.toLowerCase()));
     }
 
-    // 4. Район / Город
     if (districtVal !== 'all' && districtVal !== '') {
-        // Очищаем от уточняющих пометок из скобок при сличении
         const cleanDistrict = districtVal.split('(')[0].trim().toLowerCase();
         filtered = filtered.filter(ad => ad.location.toLowerCase().includes(cleanDistrict));
     }
@@ -380,7 +440,6 @@ function renderAds(adsToRender) {
     }).join('');
 }
 
-// Режимы авторизации
 function switchAuthMode(mode) {
     currentAuthMode = mode;
     const regFields = document.getElementById('register-fields');
@@ -439,7 +498,6 @@ async function handleAuthSubmit(e) {
     }
 }
 
-// Подача объявлений
 async function handleCreateAd(e) {
     e.preventDefault();
     if (!currentUser) {
@@ -457,12 +515,12 @@ async function handleCreateAd(e) {
     
     formData.append('category', document.getElementById('ad-category').value);
     
-    // Сборка составного географического адреса
     const oblastVal = document.getElementById('ad-oblast').value;
     const districtVal = document.getElementById('ad-district').value;
     const villageVal = document.getElementById('ad-village').value;
     
-    const fullLocation = `${oblastVal}, ${districtVal}, ${villageVal}`;
+    // Сборка локации с учетом опционального села
+    const fullLocation = villageVal ? `${oblastVal}, ${districtVal}, ${villageVal}` : `${oblastVal}, ${districtVal}`;
     formData.append('location', fullLocation);
 
     formData.append('price', document.getElementById('ad-price').value);
@@ -470,8 +528,10 @@ async function handleCreateAd(e) {
     formData.append('phone', currentUser.phone);
     formData.append('user_id', currentUser.id);
 
-    const files = document.getElementById('ad-images').files;
-    for (let i = 0; i < files.length; i++) formData.append('images', files[i]);
+    // Прикрепляем файлы из нашего массива превью
+    selectedFilesArray.forEach(file => {
+        formData.append('images', file);
+    });
 
     try {
         const res = await fetch('/api/ads/', { method: 'POST', body: formData });
@@ -479,6 +539,8 @@ async function handleCreateAd(e) {
             alert('Объявление успешно отправлено на модерацию!');
             closeAddAdModal();
             document.getElementById('ad-form').reset();
+            selectedFilesArray = []; // сбрасываем фото
+            renderPhotoPreviews();
             loadAds();
         } else {
             alert('Ошибка при создании объявления');
@@ -488,7 +550,6 @@ async function handleCreateAd(e) {
     }
 }
 
-// Панель модератора
 async function loadAdminData() {
     if (!currentUser || !currentUser.is_admin) return;
     try {
@@ -537,7 +598,6 @@ async function deleteAd(id) {
     if (res.ok) loadAdminData();
 }
 
-// Окна
 function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
 function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
 
