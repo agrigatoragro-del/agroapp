@@ -18,10 +18,10 @@ def get_db():
 @router.get("/")
 def get_ads(admin_view: bool = False, db: Session = Depends(get_db)):
     if admin_view:
-        # Для админки возвращаем только те, у которых is_approved равен False (ждут проверки)
+        # Для модерации отдаем только те, которые НЕ одобрены (is_approved == False)
         return db.query(models.Ad).filter(models.Ad.is_approved == False).order_by(models.Ad.id.desc()).all()
     
-    # Для обычных пользователей (каталог) показываем только одобренные
+    # Для обычного сайта — только одобренные
     return db.query(models.Ad).filter(models.Ad.is_approved == True).order_by(models.Ad.id.desc()).all()
     
 @router.post("/")
