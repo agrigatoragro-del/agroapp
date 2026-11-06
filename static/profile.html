@@ -10,199 +10,85 @@
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
 
     <!-- Хэдер -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
+    <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="/" class="flex items-center space-x-2 text-green-800 font-bold text-lg">
+            <a href="/" class="flex items-center space-x-2 text-green-800 font-bold text-sm hover:text-green-700 transition">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span>На главную</span>
             </a>
-            <span class="font-bold text-gray-700">Личный кабинет</span>
+            <span class="font-extrabold text-gray-800 text-base">Личный кабинет</span>
         </div>
     </header>
 
+    <!-- Основное содержимое -->
     <main class="max-w-4xl mx-auto px-4 py-8 flex-1 w-full space-y-6">
         
-        <!-- Карточка профиля и аватарка -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-            <div class="relative">
-                <div id="user-avatar-container" class="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-3xl font-bold overflow-hidden border-2 border-green-600">
-                    <span id="avatar-initials">А</span>
-                </div>
-                <label class="absolute bottom-0 right-0 bg-green-600 hover:bg-green-700 text-white w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shadow">
-                    <i class="fa-solid fa-camera text-xs"></i>
-                    <input type="file" accept="image/*" class="hidden" onchange="uploadAvatar(event)">
-                </label>
-            </div>
-
-            <div class="flex-1 text-center md:text-left">
-                <h1 id="profile-name" class="text-xl font-extrabold text-gray-900">Имя пользователя</h1>
-                <p id="profile-phone" class="text-gray-500 text-sm mt-1">+7 (...)</p>
-                <div class="mt-2 flex flex-wrap justify-center md:justify-start gap-2">
-                    <span id="profile-type-badge" class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Физическое лицо / КХ</span>
-                    <span id="profile-role-badge" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">Пользователь</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Форма редактирования -->
+        <!-- Информационная карточка пользователя -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 space-y-4">
-            <h2 class="font-bold text-lg text-gray-800 border-b pb-3">Редактирование данных</h2>
-            
-            <form id="edit-profile-form" onsubmit="saveProfileChanges(event)" class="space-y-4">
+            <div class="flex items-center justify-between">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Имя / Наименование организации:</label>
-                    <input type="text" id="edit-name" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600">
+                    <h1 id="profile-name" class="text-xl font-extrabold text-gray-900">Загрузка...</h1>
+                    <p id="profile-phone" class="text-gray-500 text-sm mt-1">Телефон...</p>
                 </div>
-
-                <div id="edit-bin-wrapper" class="hidden">
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">БИН компании:</label>
-                    <input type="text" id="edit-bin" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600 bg-gray-50">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Номер телефона (логин):</label>
-                    <input type="text" id="edit-phone" disabled class="w-full p-2.5 border rounded-xl text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
-                </div>
-
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition">
-                    Сохранить изменения
-                </button>
-            </form>
-        </div>
-
-        <!-- Админ-панель (если админ) -->
-        <div id="admin-panel-section" class="bg-amber-50 rounded-2xl p-6 border border-amber-300 hidden space-y-4">
-            <h3 class="font-bold text-lg text-amber-900"><i class="fa-solid fa-shield-halved"></i> Панель модератора</h3>
-            <div class="grid grid-cols-3 gap-3 text-center">
-                <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-sm">
-                    <p class="text-xs text-gray-500">Пользователи</p>
-                    <p id="stat-users-count" class="font-extrabold text-amber-900 text-base">0</p>
-                </div>
-                <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-sm">
-                    <p class="text-xs text-gray-500">Объявления</p>
-                    <p id="stat-ads-count" class="font-extrabold text-amber-900 text-base">0</p>
-                </div>
-                <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-sm">
-                    <p class="text-xs text-gray-500">На модерации</p>
-                    <p id="stat-pending-count" class="font-extrabold text-red-600 text-base">0</p>
+                <div id="admin-badge" class="hidden">
+                    <span class="bg-amber-100 text-amber-900 font-extrabold px-3 py-1 rounded-full text-xs flex items-center space-x-1 border border-amber-200">
+                        <i class="fa-solid fa-crown text-amber-600"></i>
+                        <span>Администратор</span>
+                    </span>
                 </div>
             </div>
-            <div>
-                <p class="text-xs text-amber-800 font-semibold mb-2">Очередь на модерацию:</p>
-                <div id="admin-moderation-list" class="space-y-2">
-                    <p class="text-xs text-gray-500">Загрузка...</p>
-                </div>
+
+            <div id="profile-details" class="text-xs text-gray-500 pt-3 border-t border-gray-100 space-y-1">
+                <p>Тип аккаунта: <span id="profile-type" class="font-bold text-gray-700">—</span></p>
+                <p id="profile-bin-container" class="hidden">БИН/ИИН: <span id="profile-bin" class="font-bold text-gray-700">—</span></p>
             </div>
         </div>
 
-        <button onclick="logout()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 py-3 rounded-2xl font-bold text-sm transition">
+        <!-- Кнопка перехода в Админ-панель (Видна только администратору) -->
+        <div id="admin-btn-container" class="hidden">
+            <a href="/static/admin.html" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-2xl font-bold text-sm transition flex items-center justify-center space-x-2 shadow-sm">
+                <i class="fa-solid fa-shield-halved text-lg"></i>
+                <span>Перейти в Админ-панель (Модерация)</span>
+            </a>
+        </div>
+
+        <!-- Кнопка выхода -->
+        <button onclick="logout()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 py-3.5 rounded-2xl font-bold text-sm transition border border-red-100">
             Выйти из аккаунта
         </button>
+
     </main>
 
     <script>
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        document.addEventListener('DOMContentLoaded', loadProfileData);
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function loadProfileData() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
             if (!currentUser) {
+                // Если не авторизован — перенаправляем на главную
                 window.location.href = '/';
                 return;
             }
-            loadProfileData();
-        });
 
-        function loadProfileData() {
+            // Выводим имя и телефон
             document.getElementById('profile-name').textContent = currentUser.name || 'Без имени';
             document.getElementById('profile-phone').textContent = currentUser.phone;
-            document.getElementById('edit-name').value = currentUser.name || '';
-            document.getElementById('edit-phone').value = currentUser.phone;
             
-            const typeBadge = document.getElementById('profile-type-badge');
-            if (currentUser.user_type === 'company') {
-                typeBadge.textContent = 'Юридическое лицо';
-                document.getElementById('edit-bin-wrapper').classList.remove('hidden');
-                document.getElementById('edit-bin').value = currentUser.bin_iin || '';
-            } else {
-                typeBadge.textContent = 'Физическое лицо / КХ';
+            // Тип аккаунта
+            const typeText = currentUser.user_type === 'company' ? 'Юридическое лицо' : 'Физическое лицо / КХ';
+            document.getElementById('profile-type').textContent = typeText;
+
+            if (currentUser.bin_iin) {
+                document.getElementById('profile-bin').textContent = currentUser.bin_iin;
+                document.getElementById('profile-bin-container').classList.remove('hidden');
             }
 
+            // Проверка прав администратора
             if (currentUser.is_admin) {
-                document.getElementById('profile-role-badge').textContent = 'Администратор';
-                document.getElementById('profile-role-badge').className = "px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-bold";
-                document.getElementById('admin-panel-section').classList.remove('hidden');
-                loadAdminData();
+                document.getElementById('admin-badge').classList.remove('hidden');
+                document.getElementById('admin-btn-container').classList.remove('hidden');
             }
-
-            const initial = (currentUser.name || currentUser.phone || 'А').charAt(0).toUpperCase();
-            document.getElementById('avatar-initials').textContent = initial;
-        }
-
-        async function loadAdminData() {
-            try {
-                const statsRes = await fetch('/api/users/admin/stats');
-                if (statsRes.ok) {
-                    const stats = await statsRes.json();
-                    document.getElementById('stat-users-count').textContent = stats.total_users;
-                    document.getElementById('stat-ads-count').textContent = stats.total_ads;
-                    document.getElementById('stat-pending-count').textContent = stats.pending_ads;
-                }
-
-                const adsRes = await fetch('/api/ads/?admin_view=true');
-                if (adsRes.ok) {
-                    const allAds = await adsRes.json();
-                    const pending = allAds.filter(a => !a.is_approved);
-                    const container = document.getElementById('admin-moderation-list');
-
-                    if (pending.length === 0) {
-                        container.innerHTML = `<p class="text-xs text-gray-500">Очередь модерации пуста.</p>`;
-                        return;
-                    }
-
-                    container.innerHTML = pending.map(ad => `
-                        <div class="bg-white p-3 rounded-xl border border-amber-200 flex justify-between items-center text-xs">
-                            <div>
-                                <p class="font-bold text-gray-800">${ad.title}</p>
-                                <p class="text-gray-500">${ad.price} ₸ | ${ad.location}</p>
-                            </div>
-                            <div class="space-x-1">
-                                <button onclick="approveAd(${ad.id})" class="bg-green-600 text-white px-2.5 py-1 rounded font-semibold">Одобрить</button>
-                                <button onclick="deleteAd(${ad.id})" class="bg-red-100 text-red-600 px-2.5 py-1 rounded font-semibold">Удалить</button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            } catch(e){}
-        }
-
-        async function approveAd(id) {
-            const res = await fetch(`/api/ads/${id}/approve`, { method: 'POST' });
-            if (res.ok) loadAdminData();
-        }
-
-        async function deleteAd(id) {
-            const res = await fetch(`/api/ads/${id}`, { method: 'DELETE' });
-            if (res.ok) loadAdminData();
-        }
-
-        async function saveProfileChanges(e) {
-            e.preventDefault();
-            currentUser.name = document.getElementById('edit-name').value;
-            if (currentUser.user_type === 'company') {
-                currentUser.bin_iin = document.getElementById('edit-bin').value;
-            }
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            alert('Данные профиля обновлены!');
-            loadProfileData();
-        }
-
-        function uploadAvatar(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                document.getElementById('user-avatar-container').innerHTML = `<img src="${event.target.result}" class="w-full h-full object-cover">`;
-            };
-            reader.readAsDataURL(file);
         }
 
         function logout() {
