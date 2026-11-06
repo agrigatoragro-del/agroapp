@@ -6,7 +6,7 @@ import json
 import os
 import shutil
 
-router = APIRouter(prefix="/api/ads", tags=["ads"])
+router = APIRouter(tags=["ads"])
 
 def get_db():
     db = SessionLocal()
