@@ -43,33 +43,80 @@
             <span id="guest-badge" class="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded-full font-medium">Режим гостя</span>
         </div>
 
-        <!-- 1-Й УРОВЕНЬ ФИЛЬТРА: ПРОДАМ / КУПЛЮ -->
-        <div class="flex space-x-2 mb-4 bg-gray-200 p-1 rounded-xl max-w-md">
-            <button id="type-btn-all" onclick="filterDealType('all')" class="deal-type-btn flex-1 py-2 text-xs font-bold rounded-lg bg-white text-green-700 shadow-sm transition">Все предложения</button>
-            <button id="type-btn-sell" onclick="filterDealType('sell')" class="deal-type-btn flex-1 py-2 text-xs font-bold rounded-lg text-gray-600 transition">🏷️ Продам</button>
-            <button id="type-btn-buy" onclick="filterDealType('buy')" class="deal-type-btn flex-1 py-2 text-xs font-bold rounded-lg text-gray-600 transition">🛒 Куплю</button>
-        </div>
+        <!-- КАСКАДНАЯ ПАНЕЛЬ ФИЛЬТРОВ И ПОИСКА -->
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6 space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                
+                <!-- 1. Тип сделки -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Тип сделки</label>
+                    <select id="filter-deal-type" onchange="applyFilters()" class="w-full p-2.5 border rounded-xl text-sm outline-none bg-gray-50 focus:bg-white focus:border-green-600 transition">
+                        <option value="all">Все предложения</option>
+                        <option value="sell">🏷️ Продам</option>
+                        <option value="buy">🛒 Куплю</option>
+                    </select>
+                </div>
 
-        <!-- 2-Й УРОВЕНЬ ФИЛЬТРА: КАТЕГОРИИ -->
-        <div class="mb-6">
-            <div class="flex overflow-x-auto space-x-2 pb-2 scrollbar-none">
-                <button onclick="filterCategory('all', event)" class="cat-btn active px-3.5 py-1.5 bg-green-600 text-white rounded-full text-xs font-semibold whitespace-nowrap shadow-sm transition">Все категории</button>
-                <button onclick="filterCategory('Зерно', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">🌾 Зерно</button>
-                <button onclick="filterCategory('Техника', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">🚜 Техника</button>
-                <button onclick="filterCategory('Запчасти', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">⚙️ Запчасти</button>
-                <button onclick="filterCategory('Элеваторное оборудование', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">🏗️ Элеваторное оборудование</button>
-                <button onclick="filterCategory('Оборудование для МТФ', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">🐄 Оборудование для МТФ</button>
-                <button onclick="filterCategory('Скот', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">🐂 Скот</button>
-                <button onclick="filterCategory('Семена', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">🌱 Семена</button>
-                <button onclick="filterCategory('Ангары', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">🏢 Ангары</button>
-                <button onclick="filterCategory('Строительные услуги', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">🛠️ Строительные услуги</button>
-                <button onclick="filterCategory('Работа', event)" class="cat-btn px-3.5 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-green-50 rounded-full text-xs font-semibold whitespace-nowrap transition">👥 Работа</button>
+                <!-- 2. Категория -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Категория</label>
+                    <select id="filter-category" onchange="applyFilters()" class="w-full p-2.5 border rounded-xl text-sm outline-none bg-gray-50 focus:bg-white focus:border-green-600 transition">
+                        <option value="all">Все категории</option>
+                        <option value="Зерно">🌾 Зерно</option>
+                        <option value="Техника">🚜 Техника</option>
+                        <option value="Запчасти">⚙️ Запчасти</option>
+                        <option value="Элеваторное оборудование">🏗️ Элеваторное оборудование</option>
+                        <option value="Оборудование для МТФ">🐄 Оборудование для МТФ</option>
+                        <option value="Скот">🐂 Скот</option>
+                        <option value="Семена">🌱 Семена</option>
+                        <option value="Ангары">🏢 Ангары</option>
+                        <option value="Строительные услуги">🛠️ Строительные услуги</option>
+                        <option value="Работа">👥 Работа</option>
+                    </select>
+                </div>
+
+                <!-- 3. Выбор Области -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Область</label>
+                    <select id="filter-region-oblast" onchange="onFilterOblastChange()" class="w-full p-2.5 border rounded-xl text-sm outline-none bg-gray-50 focus:bg-white focus:border-green-600 transition">
+                        <option value="all">🇰🇿 Весь Казахстан</option>
+                        <option value="Костанайская">Костанайская область</option>
+                        <option value="Акмолинская">Акмолинская область</option>
+                        <option value="СКО">Северо-Казахстанская область (СКО)</option>
+                        <option value="Павлодарская">Павлодарская область</option>
+                        <option value="Карагандинская">Карагандинская область</option>
+                        <option value="Улытауская">Улытауская область</option>
+                        <option value="ВКО">Восточно-Казахстанская область</option>
+                        <option value="Абайская">Абайская область</option>
+                        <option value="Актюбинская">Актюбинская область</option>
+                        <option value="ЗКО">Западно-Казахстанская область</option>
+                        <option value="Алматинская">Алматинская область</option>
+                        <option value="Жетысуская">Жетысуская область</option>
+                        <option value="Жамбылская">Жамбылская область</option>
+                        <option value="Туркестанская">Туркестанская область</option>
+                        <option value="Кызылординская">Кызылординская область</option>
+                        <option value="Атырауская">Атырауская область</option>
+                        <option value="Мангистауская">Мангистауская область</option>
+                        <option value="г. Астана">г. Астана</option>
+                        <option value="г. Алматы">г. Алматы</option>
+                        <option value="г. Шымкент">г. Шымкент</option>
+                    </select>
+                </div>
+
+                <!-- 4. Выбор Района / Города / Райцентра -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Район / Райцентр</label>
+                    <select id="filter-region-district" onchange="applyFilters()" disabled class="w-full p-2.5 border rounded-xl text-sm outline-none bg-gray-100 text-gray-400 focus:bg-white focus:border-green-600 transition">
+                        <option value="all">Сначала выберите область</option>
+                    </select>
+                </div>
+
             </div>
         </div>
 
         <!-- СЕТКА ОБЪЯВЛЕНИЙ -->
         <div id="ads-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <p class="text-gray-500 text-sm col-span-full text-center py-8">Загрузка объявлений...</p>
+            <p class="text-gray-500 text-sm col-span-full text-center py-10">Загрузка объявлений...</p>
         </div>
     </main>
 
@@ -157,16 +204,16 @@
             <h2 class="text-xl font-bold mb-4">Новое объявление</h2>
             <form id="ad-form" onsubmit="handleCreateAd(event)" class="space-y-3">
                 
-                <!-- Тип предложения: Продам или Куплю -->
+                <!-- Тип предложения -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Тип объявления:</label>
                     <select id="ad-deal-type" required class="w-full p-2.5 border rounded-xl text-sm outline-none bg-white">
                         <option value="sell" selected>🏷️ Продам (Продажа)</option>
-                        <option value="buy">🛒 Куплю (Покупка / Закуп)</option>
+                        <option value="buy">🛒 Куплю (Закуп / Покупка)</option>
                     </select>
                 </div>
 
-                <!-- Выбор категории -->
+                <!-- Категория -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Категория:</label>
                     <select id="ad-category" required class="w-full p-2.5 border rounded-xl text-sm outline-none bg-white">
@@ -184,10 +231,44 @@
                     </select>
                 </div>
 
-                <input type="text" id="ad-title" placeholder="Заголовок (напр.: Продам пшеницу 3 класс / Куплю трактор MTZ)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                <input type="text" id="ad-location" placeholder="Регион / Город (напр.: Костанай)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                <!-- КАСКАДНЫЙ ВЫБОР ЛОКАЦИИ -->
+                <div class="space-y-2 border p-3 rounded-xl bg-gray-50">
+                    <label class="block text-xs font-bold text-gray-700">Местонахождение объекта:</label>
+                    
+                    <select id="ad-oblast" onchange="onAdOblastChange()" required class="w-full p-2 border rounded-lg text-sm bg-white">
+                        <option value="" disabled selected>Выберите область...</option>
+                        <option value="Костанайская">Костанайская область</option>
+                        <option value="Акмолинская">Акмолинская область</option>
+                        <option value="СКО">Северо-Казахстанская область (СКО)</option>
+                        <option value="Павлодарская">Павлодарская область</option>
+                        <option value="Карагандинская">Карагандинская область</option>
+                        <option value="Улытауская">Улытауская область</option>
+                        <option value="ВКО">Восточно-Казахстанская область</option>
+                        <option value="Абайская">Абайская область</option>
+                        <option value="Актюбинская">Актюбинская область</option>
+                        <option value="ЗКО">Западно-Казахстанская область</option>
+                        <option value="Алматинская">Алматинская область</option>
+                        <option value="Жетысуская">Жетысуская область</option>
+                        <option value="Жамбылская">Жамбылская область</option>
+                        <option value="Туркестанская">Туркестанская область</option>
+                        <option value="Кызылординская">Кызылординская область</option>
+                        <option value="Атырауская">Атырауская область</option>
+                        <option value="Мангистауская">Мангистауская область</option>
+                        <option value="г. Астана">г. Астана</option>
+                        <option value="г. Алматы">г. Алматы</option>
+                        <option value="г. Шымкент">г. Шымкент</option>
+                    </select>
+
+                    <select id="ad-district" disabled required class="w-full p-2 border rounded-lg text-sm bg-gray-100 text-gray-400">
+                        <option value="" disabled selected>Сначала выберите область</option>
+                    </select>
+
+                    <input type="text" id="ad-village" placeholder="Населенный пункт (например: с. Троебратское / с. Узунколь)" required class="w-full p-2 border rounded-lg text-sm bg-white">
+                </div>
+
+                <input type="text" id="ad-title" placeholder="Заголовок (напр.: Пшеница 3 класс / Трактор MТЗ)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
                 <input type="number" id="ad-price" placeholder="Цена / Бюджет (тенге)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
-                <textarea id="ad-desc" placeholder="Подробности (объем, состояние, контакты...)" required class="w-full p-2.5 border rounded-xl text-sm outline-none h-20"></textarea>
+                <textarea id="ad-desc" placeholder="Подробности (объем, состояние, качественные показатели...)" required class="w-full p-2.5 border rounded-xl text-sm outline-none h-20"></textarea>
                 <input type="file" id="ad-images" multiple accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
 
                 <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-bold text-sm transition">
