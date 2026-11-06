@@ -39,10 +39,10 @@ async def create_ad(
     image_urls = []
     os.makedirs("static/uploads", exist_ok=True)
     for img in images:
-        path = f"static/uploads/{img.filename}"
-        with open(path, "wb") as buffer:
+        file_path = f"static/uploads/{img.filename}"
+        with open(file_path, "wb") as buffer:
             shutil.copyfileobj(img.file, buffer)
-        image_urls.append(f"/{path}")
+        image_urls.append(f"/{file_path}")  # Получится ровно "/static/uploads/имя_файла.jpg"
 
     new_ad = models.Ad(
         title=title,
