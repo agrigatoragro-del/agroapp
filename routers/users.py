@@ -14,8 +14,9 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/")
-def register_or_login(
+# 1. РЕГИСТРАЦИЯ НОВОГО ПОЛЬЗОВАТЕЛЯ
+@router.post("/register")
+def register_user(
     phone: str = Form(...),
     password: str = Form(...),
     user_type: str = Form("individual"),
@@ -23,11 +24,10 @@ def register_or_login(
     bin_iin: str = Form(""),
     db: Session = Depends(get_db)
 ):
-    user = db.query(models.User).filter(models.User.phone == phone).first()
-    if user:
-        if user.password != password:
-            raise HTTPException(status_code=400, detail="Неверный пароль")
-        return user
+    # Проверяем, есть ли уже такой номер в базе
+    existing_user = db.query(models.User).filter(models.User.phone == phone).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Пользователь с таким номером уже зарегистрирован!")
     
     new_user = models.User(
         phone=phone,
@@ -40,9 +40,25 @@ def register_or_login(
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user
+    return {"status": "success", "message": "Регистрация прошла успешно!", "user_id": new_user.id}
 
-# Эндпоинт для сбора статистики в админ-панель
+# 2. ВХОД (АВТОРИЗАЦИЯ)
+@router.post("/login")
+def login_user(
+    phone: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    user = db.query(models.User).filter(models.User.phone == phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь с таким номером не найден. Зарегистрируйтесь!")
+    
+    if user.password != password:
+        raise HTTPException(status_code=400, detail="Неверный пароль!")
+        
+    return user
+
+# Статистика для админ-панели
 @router.get("/admin/stats")
 def get_admin_stats(db: Session = Depends(get_db)):
     total_users = db.query(models.User).count()
@@ -54,32 +70,3 @@ def get_admin_stats(db: Session = Depends(get_db)):
         "pending_ads": pending_ads,
         "server_status": "Работает стабильно"
     }
-
-@router.post("/{user_id}/avatar")
-async def upload_avatar(user_id: int, avatar: UploadFile = File(...), db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-    
-    os.makedirs("static/uploads", exist_ok=True)
-    file_path = f"static/uploads/avatar_{user_id}_{avatar.filename}"
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(avatar.file, buffer)
-    
-    user.avatar_url = f"/{file_path}"
-    db.commit()
-    return {"avatar_url": user.avatar_url}
-
-@router.post("/{user_id}/change-password")
-def change_password(
-    user_id: int,
-    old_password: str = Form(...),
-    new_password: str = Form(...),
-    db: Session = Depends(get_db)
-):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if not user or user.password != old_password:
-        raise HTTPException(status_code=400, detail="Старый пароль введен неверно")
-    user.password = new_password
-    db.commit()
-    return {"status": "success"}
