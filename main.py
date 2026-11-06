@@ -3,7 +3,6 @@ from fastapi.staticfiles import StaticFiles
 import models
 from database import engine
 from routers import users, ads
-app.include_router(ads.router, prefix="/api/ads")
 
 # Создаем таблицы в базе данных при запуске
 models.Base.metadata.create_all(bind=engine)
@@ -15,6 +14,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Подключаем все эндпоинты пользователей и админки из routers/users.py
 app.include_router(users.router)
+
+app.include_router(ads.router, prefix="/api/ads")
 
 # Главная страница (отдает index.html)
 from fastapi.responses import FileResponse
