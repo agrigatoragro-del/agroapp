@@ -16,11 +16,10 @@ def get_db():
         db.close()
 
 @router.get("/")
-def get_ads(admin_view: bool = False, db: Session = Depends(get_db)):
-    if admin_view:
-        return db.query(models.Ad).order_by(models.Ad.id.desc()).all()
-    return db.query(models.Ad).filter(models.Ad.is_approved == True).order_by(models.Ad.id.desc()).all()
-
+def get_ads(db: Session = Depends(get_db)):
+    # Возвращаем все объявления для админки и каталога, чтобы ничего не терялось
+    return db.query(models.Ad).order_by(models.Ad.id.desc()).all()
+    
 @router.post("/")
 async def create_ad(
     title: str = Form(...),
