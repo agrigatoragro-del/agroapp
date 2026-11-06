@@ -16,9 +16,13 @@ def get_db():
         db.close()
 
 @router.get("/")
-def get_ads(db: Session = Depends(get_db)):
-    # Возвращаем все объявления для админки и каталога, чтобы ничего не терялось
-    return db.query(models.Ad).order_by(models.Ad.id.desc()).all()
+def get_ads(admin_view: bool = False, db: Session = Depends(get_db)):
+    if admin_view:
+        # Для админки возвращаем только те, у которых is_approved равен False (ждут проверки)
+        return db.query(models.Ad).filter(models.Ad.is_approved == False).order_by(models.Ad.id.desc()).all()
+    
+    # Для обычных пользователей (каталог) показываем только одобренные
+    return db.query(models.Ad).filter(models.Ad.is_approved == True).order_by(models.Ad.id.desc()).all()
     
 @router.post("/")
 async def create_ad(
