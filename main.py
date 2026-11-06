@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import models
 from database import engine
-from routers import users
+from routers import users, ads
+app.include_router(ads.router, prefix="/api/ads")
 
 # Создаем таблицы в базе данных при запуске
 models.Base.metadata.create_all(bind=engine)
