@@ -1,84 +1,121 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Модерация объявлений - AgroKZ</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Модерация объявлений - AgroKZ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
-<header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
-<div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-<div class="flex items-center space-x-3">
-<i class="fa-solid fa-clipboard-check text-green-400 text-2xl"></i>
-<h1 class="font-bold text-lg">Панель модерации объявлений</h1>
-</div>
-<a href="/static/profile.html" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 border border-slate-700">
-<i class="fa-solid fa-user"></i>
-<span>В личный кабинет</span>
-</a>
-</div>
-</header>
-<main class="max-w-5xl mx-auto px-4 py-8 space-y-6">
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden p-6">
-<div class="flex justify-between items-center mb-6 border-b pb-4">
-<div>
-<h2 class="font-bold text-xl text-gray-900">Очередь на проверку</h2>
-<p class="text-xs text-gray-500 mt-0.5">Объявления, ожидающие подтверждения публикации</p>
-</div>
-<button onclick="loadPendingAds()" class="bg-green-600 hover:bg-green-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
-<i class="fa-solid fa-rotate"></i>
-<span>Обновить список</span>
-</button>
-</div>
-<div id="moderation-container" class="space-y-4">
-<p class="text-sm text-gray-500 text-center py-8">Загрузка объявлений...</p>
-</div>
-</div>
-</main>
-<script>
-document.addEventListener('DOMContentLoaded', loadPendingAds);
-async function loadPendingAds() {
-const container = document.getElementById('moderation-container');
-container.innerHTML = <p class="text-sm text-gray-500 text-center py-8">Загрузка...</p>;
-try {
-const res = await fetch('/api/ads/?admin_view=true');
-if (!res.ok) {
-container.innerHTML = <p class="text-sm text-red-500 text-center py-8">Ошибка загрузки данных</p>;
-return;
-}
-const allAds = await res.json();
-const pendingAds = allAds.filter(a => !a.is_approved);
-if (pendingAds.length === 0) {
-container.innerHTML = <div class="text-center py-12 text-gray-400 space-y-2"> <i class="fa-solid fa-circle-check text-4xl text-green-500 mb-2"></i> <p class="font-bold text-gray-700 text-base">Все объявления проверены!</p> <p class="text-xs">Новых заявок на модерацию нет.</p> </div>;
-return;
-}
-container.innerHTML = pendingAds.map(ad => {
-let images = [];
-try { images = JSON.parse(ad.images_json || '[]'); } catch(e){}
-const imgUrl = images.length > 0 ? images[0] : 'https://via.placeholder.com/150?text=No+Photo';
-return <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm"> <div class="flex items-start space-x-4"> <img src="${imgUrl}" class="w-20 h-20 object-cover rounded-lg border flex-shrink-0"> <div class="space-y-1"> <span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded font-bold uppercase">${ad.category}</span> <h3 class="font-bold text-gray-900 text-base">${ad.title}</h3> <p class="text-green-700 font-extrabold text-sm">${ad.price.toLocaleString()} ₸</p> <p class="text-gray-500 text-xs"><i class="fa-solid fa-location-dot mr-1"></i>${ad.location}</p> <p class="text-gray-600 text-xs bg-white p-2 rounded border mt-1">${ad.description}</p> <p class="text-gray-400 text-[11px]"><i class="fa-solid fa-phone mr-1"></i>Телефон автора: <span class="font-semibold text-gray-700">${ad.phone}</span></p> </div> </div> <div class="flex md:flex-col gap-2 w-full md:w-auto"> <button onclick="approveAd(${ad.id})" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm"> <i class="fa-solid fa-check mr-1"></i> Одобрить </button> <button onclick="deleteAd(${ad.id})" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl text-xs font-bold transition border border-red-200"> <i class="fa-solid fa-trash mr-1"></i> Удалить </button> </div> </div>;
-}).join('');
-} catch (err) {
-container.innerHTML = <p class="text-sm text-red-500 text-center py-8">Ошибка соединения с сервером</p>;
-}
-}
-async function approveAd(id) {
-try {
-const res = await fetch(/api/ads/${id}/approve, { method: 'POST' });
-if (res.ok) loadPendingAds();
-else alert('Не удалось одобрить объявление');
-} catch (e) { alert('Ошибка сети'); }
-}
-async function deleteAd(id) {
-if (!confirm('Вы уверены, что хотите удалить это объявление?')) return;
-try {
-const res = await fetch(/api/ads/${id}, { method: 'DELETE' });
-if (res.ok) loadPendingAds();
-else alert('Не удалось удалить объявление');
-} catch (e) { alert('Ошибка сети'); }
-}
-</script>
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-clipboard-check text-green-400 text-2xl"></i>
+                <h1 class="font-bold text-lg">Панель модерации объявлений</h1>
+            </div>
+            <a href="/static/profile.html" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 border border-slate-700">
+                <i class="fa-solid fa-user"></i>
+                <span>В личный кабинет</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden p-6">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                    <h2 class="font-bold text-xl text-gray-900">Очередь на проверку</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Объявления, ожидающие подтверждения публикации</p>
+                </div>
+                <button onclick="loadPendingAds()" class="bg-green-600 hover:bg-green-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Обновить список</span>
+                </button>
+            </div>
+            <div id="moderation-container" class="space-y-4">
+                <p class="text-sm text-gray-500 text-center py-8">Загрузка объявлений...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadPendingAds);
+
+        async function loadPendingAds() {
+            const container = document.getElementById('moderation-container');
+            container.innerHTML = '<p class="text-sm text-gray-500 text-center py-8">Загрузка...</p>';
+            
+            try {
+                const res = await fetch('/api/ads/?admin_view=true');
+                if (!res.ok) {
+                    container.innerHTML = '<p class="text-sm text-red-500 text-center py-8">Ошибка загрузки данных</p>';
+                    return;
+                }
+                
+                const allAds = await res.json();
+                const pendingAds = allAds.filter(a => !a.is_approved);
+
+                if (pendingAds.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-gray-400 space-y-2">
+                            <i class="fa-solid fa-circle-check text-4xl text-green-500 mb-2"></i>
+                            <p class="font-bold text-gray-700 text-base">Все объявления проверены!</p>
+                            <p class="text-xs">Новых заявок на модерацию нет.</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = pendingAds.map(ad => {
+                    let images = [];
+                    try { images = JSON.parse(ad.images_json || '[]'); } catch(e){}
+                    const imgUrl = images.length > 0 ? images[0] : 'https://via.placeholder.com/150?text=No+Photo';
+                    
+                    return `
+                        <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
+                            <div class="flex items-start space-x-4">
+                                <img src="${imgUrl}" class="w-20 h-20 object-cover rounded-lg border flex-shrink-0">
+                                <div class="space-y-1">
+                                    <span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded font-bold uppercase">${ad.category}</span>
+                                    <h3 class="font-bold text-gray-900 text-base">${ad.title}</h3>
+                                    <p class="text-green-700 font-extrabold text-sm">${ad.price.toLocaleString()} ₸</p>
+                                    <p class="text-gray-500 text-xs"><i class="fa-solid fa-location-dot mr-1"></i>${ad.location}</p>
+                                    <p class="text-gray-600 text-xs bg-white p-2 rounded border mt-1">${ad.description}</p>
+                                    <p class="text-gray-400 text-[11px]"><i class="fa-solid fa-phone mr-1"></i>Телефон автора: <span class="font-semibold text-gray-700">${ad.phone}</span></p>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col gap-2 w-full md:w-auto">
+                                <button onclick="approveAd(${ad.id})" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">
+                                    <i class="fa-solid fa-check mr-1"></i> Одобрить
+                                </button>
+                                <button onclick="deleteAd(${ad.id})" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl text-xs font-bold transition border border-red-200">
+                                    <i class="fa-solid fa-trash mr-1"></i> Удалить
+                                </button>
+                            </div>
+                        </div>`;
+                }).join('');
+
+            } catch (err) {
+                container.innerHTML = '<p class="text-sm text-red-500 text-center py-8">Ошибка соединения с сервером</p>';
+            }
+        }
+
+        async function approveAd(id) {
+            try {
+                const res = await fetch(`/api/ads/${id}/approve`, { method: 'POST' });
+                if (res.ok) loadPendingAds();
+                else alert('Не удалось одобрить объявление');
+            } catch (e) { alert('Ошибка сети'); }
+        }
+
+        async function deleteAd(id) {
+            if (!confirm('Вы уверены, что хотите удалить это объявление?')) return;
+            try {
+                const res = await fetch(`/api/ads/${id}`, { method: 'DELETE' });
+                if (res.ok) loadPendingAds();
+                else alert('Не удалось удалить объявление');
+            } catch (e) { alert('Ошибка сети'); }
+        }
+    </script>
 </body>
 </html>
