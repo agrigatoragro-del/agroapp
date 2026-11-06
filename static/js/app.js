@@ -1,9 +1,219 @@
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 let currentAuthMode = 'login';
-
 let allAdsList = [];
-let activeDealType = 'all'; // 'all', 'sell', 'buy'
-let activeCategory = 'all';
+
+// Справочник всех 17 областей РК + 3 городов республиканского значения
+const districtsData = {
+    "Костанайская": [
+        "г. Костанай (Областной центр)", "г. Рудный", "г. Лисаковск", "г. Аркалык", "г. Тобыл",
+        "Алтынсаринский район (с. Убаганское)",
+        "Амангельдинский район (с. Амангельды)",
+        "Аулиекольский район (с. Аулиеколь)",
+        "Денисовский район (с. Денисовка)",
+        "Джангельдинский район (с. Торгай)",
+        "Житикаринский район (г. Житикара)",
+        "Карабалыкский район (п. Карабалык)",
+        "Карасуский район (с. Карасу)",
+        "Камыстинский район (с. Камысты)",
+        "Мендыкаринский район (с. Боровской)",
+        "Наурзумский район (с. Караменды)",
+        "Район Беимбета Майлина (с. Айет)",
+        "Сарыкольский район (п. Сарыколь)",
+        "Узункольский район (с. Узунколь)",
+        "Федоровский район (п. Федоровка)"
+    ],
+    "Акмолинская": [
+        "г. Кокшетау (Областной центр)", "г. Степногорск", "г. Косшы", "г. Щучинск", "г. Атбасар", "г. Акколь", "г. Ерейментау", "г. Есиль", "г. Макинск", "г. Державинск",
+        "Аккольский район (г. Акколь)",
+        "Астраханский район (с. Астраханка)",
+        "Атбасарский район (г. Атбасар)",
+        "Буландынский район (г. Макинск)",
+        "Бурабайский район (г. Щучинск)",
+        "Егиндыкольский район (с. Егиндыколь)",
+        "Ерейментауский район (г. Ерейментау)",
+        "Есильский район (г. Есиль)",
+        "Жаксынский район (с. Жаксы)",
+        "Жаркаинский район (г. Державинск)",
+        "Зерендинский район (с. Зеренда)",
+        "Коргалжынский район (с. Коргалжын)",
+        "Сандыктауский район (с. Балкашино)",
+        "Целиноградский район (с. Акмол)",
+        "Аршалынский район (п. Аршалы)"
+    ],
+    "СКО": [
+        "г. Петропавловск (Областной центр)", "г. Тайынша", "г. Булаево", "г. Мамлютка", "г. Сергеевка",
+        "Айыртауский район (с. Саумалколь)",
+        "Акжарский район (с. Талшик)",
+        "Аккайынский район (с. Смирново)",
+        "Есильский район (с. Явленка)",
+        "Жамбылский район (с. Пресновка)",
+        "Кызылжарский район (с. Бесколь)",
+        "Мамлютский район (г. Мамлютка)",
+        "Район Габита Мусрепова (п. Новоишимское)",
+        "Район Магжана Жумабаева (г. Булаево)",
+        "Район Шал акына (г. Сергеевка)",
+        "Тайыншинский район (г. Тайынша)",
+        "Тимирязевский район (с. Тимирязево)",
+        "Уалихановский район (с. Кишкенеколь)"
+    ],
+    "Павлодарская": [
+        "г. Павлодар (Областной центр)", "г. Экибастуз", "г. Аксу",
+        "Актогайский район (с. Актогай)",
+        "Баянаульский район (с. Баянаул)",
+        "Железинский район (с. Железинка)",
+        "Иртышский район (с. Иртышск)",
+        "Майский район (с. Коктобе)",
+        "Павлодарский район (г. Павлодар)",
+        "Район Теренколь (с. Теренколь)",
+        "Успенский район (с. Успенка)",
+        "Щербактинский район (с. Щербакты)"
+    ],
+    "Карагандинская": [
+        "г. Караганда (Областной центр)", "г. Темиртау", "г. Балхаш", "г. Шахтинск", "г. Сарань", "г. Абай", "г. Приозерск",
+        "Абайский район (г. Абай)",
+        "Актогайский район (с. Актогай)",
+        "Бухар-Жырауский район (п. Ботакара)",
+        "Каркаралинский район (г. Каркаралинск)",
+        "Нуринский район (п. Нура)",
+        "Осакаровский район (п. Осакаровка)",
+        "Шетский район (с. Аксу-Аюлы)"
+    ],
+    "Улытауская": [
+        "г. Жезказган (Областной центр)", "г. Сатпаев", "г. Каражал",
+        "Жанааркинский район (п. Жанаарка)",
+        "Улытауский район (с. Улытау)"
+    ],
+    "ВКО": [
+        "г. Усть-Каменогорск (Областной центр)", "г. Риддер", "г. Алтай", "г. Зайсан", "г. Шемонаиха",
+        "Алтайский район (г. Алтай)",
+        "Глубоковский район (п. Глубокое)",
+        "Зайсанский район (г. Зайсан)",
+        "Катон-Карагайский район (с. Катон-Карагай)",
+        "Курчумский район (с. Курчум)",
+        "Самарский район (с. Самарское)",
+        "Тарбагатайский район (с. Акжар)",
+        "Уланский район (п. Касыма Кайсенова)",
+        "Шемонаихинский район (г. Шемонаиха)"
+    ],
+    "Абайская": [
+        "г. Семей (Областной центр)", "г. Аягоз", "г. Курчатов",
+        "Абайский район (с. Карауыл)",
+        "Аксуатский район (с. Аксуат)",
+        "Аягозский район (г. Аягоз)",
+        "Бескарагайский район (с. Бескарагай)",
+        "Бородулихинский район (с. Бородулиха)",
+        "Жарминский район (с. Калбатау)",
+        "Кокпектинский район (с. Кокпекты)",
+        "Урджарский район (с. Урджар)"
+    ],
+    "Актюбинская": [
+        "г. Актобе (Областной центр)", "г. Хромтау", "г. Кандыагаш", "г. Шалкар", "г. Алга", "г. Темир", "г. Жем",
+        "Алгинский район (г. Алга)",
+        "Байганинский район (с. Карауылкельды)",
+        "Каргалинский район (с. Бадамша)",
+        "Кобдинский район (с. Кобда)",
+        "Мартукский район (с. Мартук)",
+        "Мугалжарский район (г. Кандыагаш)",
+        "Темирский район (п. Шубаркудук)",
+        "Уилский район (с. Уил)",
+        "Хромтауский район (г. Хромтау)",
+        "Шалкарский район (г. Шалкар)",
+        "Иргизский район (с. Иргиз)"
+    ],
+    "ЗКО": [
+        "г. Уральск (Областной центр)", "г. Аксай",
+        "Бурлинский район (г. Aксай)",
+        "Жангалинский район (с. Жангала)",
+        "Жанибекский район (с. Жанибек)",
+        "Казталовский район (с. Казталовка)",
+        "Каратобинский район (с. Каратобе)",
+        "Район Байтерек (с. Переметное)",
+        "Теректинский район (с. Федоровка)",
+        "Таскалинский район (с. Таскала)",
+        "Бокейординский район (с. Сайхин)",
+        "Акжаикский район (с. Чапаев)"
+    ],
+    "Алматинская": [
+        "г. Конаев (Областной центр)", "г. Каскелен", "г. Талгар", "г. Есик", "г. Жаркент",
+        "Балхашский район (с. Баканас)",
+        "Енбекшиказахский район (г. Есик)",
+        "Жамбылский район (с. Узынагаш)",
+        "Карасайский район (г. Каскелен)",
+        "Кегенский район (с. Кеген)",
+        "Райымбекский район (с. Нарынкол)",
+        "Талгарский район (г. Талгар)",
+        "Уйгурский район (с. Чунджа)",
+        "Илийский район (п. Отеген Батыр)"
+    ],
+    "Жетысуская": [
+        "г. Талдыкорган (Областной центр)", "г. Текели", "г. Ушарал", "г. Сарканд",
+        "Аксуский район (с. Жансугуров)",
+        "Алакольский район (г. Ушарал)",
+        "Ескельдинский район (с. Карабулак)",
+        "Каратальский район (г. Уштобе)",
+        "Кербулакский район (с. Сарыозек)",
+        "Коксуский район (с. Балпык Би)",
+        "Панфиловский район (г. Жаркент)",
+        "Саркандский район (г. Сарканд)"
+    ],
+    "Жамбылская": [
+        "г. Тараз (Областной центр)", "г. Шу", "г. Каратау", "г. Жанатас",
+        "Байзакский район (с. Сарыкемер)",
+        "Жамбылский район (с. Аса)",
+        "Жуалынский район (с. Бауыржан Момышулы)",
+        "Кордайский район (с. Кордай)",
+        "Меркенский район (с. Мерке)",
+        "Мойынкумский район (с. Мойынкум)",
+        "Т. Рыскулова район (с. Кулан)",
+        "Таласский район (г. Каратау)",
+        "Шуский район (г. Шу)"
+    ],
+    "Туркестанская": [
+        "г. Туркестан (Областной центр)", "г. Кентау", "г. Арыс", "г. Жетысай", "г. Шардара", "г. Сарыагаш",
+        "Байдибекский район (с. Шаян)",
+        "Жетысайский район (г. Жетысай)",
+        "Казыгуртский район (с. Казыгурт)",
+        "Мактааральский район (п. Мырзакент)",
+        "Ордабасинский район (с. Темирлановка)",
+        "Отрарский район (с. Шаульдер)",
+        "Сайрамский район (с. Аксукент)",
+        "Сарыагашский район (г. Сарыагаш)",
+        "Сузакский район (с. Шолаккорган)",
+        "Толебийский район (г. Ленгер)",
+        "Тюлькубасский район (с. Турара Рыскулова)",
+        "Шардаринский район (г. Шардара)"
+    ],
+    "Кызылординская": [
+        "г. Кызылорда (Областной центр)", "г. Байконыр", "г. Аральск", "г. Казалинск",
+        "Аральский район (г. Аральск)",
+        "Жанакорганский район (п. Жанакорган)",
+        "Казалинский район (п. Айтеке Би)",
+        "Кармакшинский район (п. Жосалы)",
+        "Сырдарьинский район (п. Теренозек)",
+        "Шиелийский район (п. Шиели)"
+    ],
+    "Атырауская": [
+        "г. Атырау (Областной центр)", "г. Кульсары",
+        "Жылыойский район (г. Кульсары)",
+        "Индерский район (п. Индерборский)",
+        "Исатайский район (с. Аккистау)",
+        "Кзылкогинский район (с. Миялы)",
+        "Курмангазинский район (с. Курмангазы)",
+        "Макатский район (п. Макат)",
+        "Махамбетский район (с. Махамбет)"
+    ],
+    "Мангистауская": [
+        "г. Актау (Областной центр)", "г. Жанаозен", "г. Форт-Шевченко",
+        "Бейнеуский район (с. Бейнеу)",
+        "Каракиянский район (с. Курык)",
+        "Мангистауский район (с. Шетпе)",
+        "Мунайлинский район (с. Мангистау)",
+        "Тупкараганский район (г. Форт-Шевченко)"
+    ],
+    "г. Астана": ["г. Астана (Республиканское значение)"],
+    "г. Алматы": ["г. Алматы (Республиканское значение)"],
+    "г. Шымкент": ["г. Шымкент (Республиканское значение)"]
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     updateUIBasedOnUser();
@@ -46,61 +256,96 @@ async function loadAds() {
     }
 }
 
-// Двухуровневая фильтрация (Продам/Куплю + Категория)
-function applyFilters() {
-    let filtered = allAdsList;
+// Переключение районов в шапке фильтра каталога
+function onFilterOblastChange() {
+    const oblastSelect = document.getElementById('filter-region-oblast');
+    const districtSelect = document.getElementById('filter-region-district');
+    const selectedOblast = oblastSelect.value;
 
-    // 1. Фильтр Продам / Куплю
-    if (activeDealType !== 'all') {
-        filtered = filtered.filter(ad => {
-            const isBuy = ad.title.toLowerCase().includes('куплю') || ad.description.toLowerCase().includes('куплю');
-            return activeDealType === 'buy' ? isBuy : !isBuy;
+    districtSelect.innerHTML = '<option value="all">Все районы / города / центры</option>';
+
+    if (selectedOblast === 'all' || !districtsData[selectedOblast]) {
+        districtSelect.disabled = true;
+        districtSelect.className = "w-full p-2.5 border rounded-xl text-sm outline-none bg-gray-100 text-gray-400";
+    } else {
+        districtSelect.disabled = false;
+        districtSelect.className = "w-full p-2.5 border rounded-xl text-sm outline-none bg-gray-50 focus:bg-white focus:border-green-600 transition text-gray-800";
+        
+        districtsData[selectedOblast].forEach(dist => {
+            const opt = document.createElement('option');
+            opt.value = dist;
+            opt.textContent = dist;
+            districtSelect.appendChild(opt);
         });
     }
 
-    // 2. Фильтр Категории
-    if (activeCategory !== 'all') {
-        filtered = filtered.filter(ad => ad.category === activeCategory);
+    applyFilters();
+}
+
+// Переключение районов в форме создания объявления
+function onAdOblastChange() {
+    const oblastVal = document.getElementById('ad-oblast').value;
+    const districtSelect = document.getElementById('ad-district');
+
+    districtSelect.innerHTML = '<option value="" disabled selected>Выберите район / город / райцентр...</option>';
+
+    if (!oblastVal || !districtsData[oblastVal]) {
+        districtSelect.disabled = true;
+        districtSelect.className = "w-full p-2 border rounded-lg text-sm bg-gray-100 text-gray-400";
+    } else {
+        districtSelect.disabled = false;
+        districtSelect.className = "w-full p-2 border rounded-lg text-sm bg-white text-gray-800";
+
+        districtsData[oblastVal].forEach(dist => {
+            const opt = document.createElement('option');
+            opt.value = dist;
+            opt.textContent = dist;
+            districtSelect.appendChild(opt);
+        });
+    }
+}
+
+// Трехуровневая каскадная фильтрация
+function applyFilters() {
+    const dealTypeVal = document.getElementById('filter-deal-type').value;
+    const categoryVal = document.getElementById('filter-category').value;
+    const oblastVal = document.getElementById('filter-region-oblast').value;
+    const districtVal = document.getElementById('filter-region-district').value;
+
+    let filtered = allAdsList;
+
+    // 1. Продам / Куплю
+    if (dealTypeVal !== 'all') {
+        filtered = filtered.filter(ad => {
+            const isBuy = ad.title.toLowerCase().includes('куплю') || ad.description.toLowerCase().includes('куплю');
+            return dealTypeVal === 'buy' ? isBuy : !isBuy;
+        });
+    }
+
+    // 2. Категория
+    if (categoryVal !== 'all') {
+        filtered = filtered.filter(ad => ad.category === categoryVal);
+    }
+
+    // 3. Область
+    if (oblastVal !== 'all') {
+        filtered = filtered.filter(ad => ad.location.toLowerCase().includes(oblastVal.toLowerCase()));
+    }
+
+    // 4. Район / Город
+    if (districtVal !== 'all' && districtVal !== '') {
+        // Очищаем от уточняющих пометок из скобок при сличении
+        const cleanDistrict = districtVal.split('(')[0].trim().toLowerCase();
+        filtered = filtered.filter(ad => ad.location.toLowerCase().includes(cleanDistrict));
     }
 
     renderAds(filtered);
 }
 
-function filterDealType(type) {
-    activeDealType = type;
-    document.querySelectorAll('.deal-type-btn').forEach(b => {
-        b.classList.remove('bg-white', 'text-green-700', 'shadow-sm');
-        b.classList.add('text-gray-600');
-    });
-    
-    const activeBtn = document.getElementById(`type-btn-${type}`);
-    if (activeBtn) {
-        activeBtn.classList.remove('text-gray-600');
-        activeBtn.classList.add('bg-white', 'text-green-700', 'shadow-sm');
-    }
-
-    applyFilters();
-}
-
-function filterCategory(cat, event) {
-    activeCategory = cat;
-    document.querySelectorAll('.cat-btn').forEach(b => {
-        b.classList.remove('bg-green-600', 'text-white', 'shadow-sm');
-        b.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-700');
-    });
-
-    if (event && event.target) {
-        event.target.classList.remove('bg-white', 'border', 'border-gray-200', 'text-gray-700');
-        event.target.classList.add('bg-green-600', 'text-white', 'shadow-sm');
-    }
-
-    applyFilters();
-}
-
 function renderAds(adsToRender) {
     const container = document.getElementById('ads-container');
     if (adsToRender.length === 0) {
-        container.innerHTML = `<p class="text-gray-500 text-sm col-span-full text-center py-10">В выбранных фильтрах объявлений не найдено.</p>`;
+        container.innerHTML = `<p class="text-gray-500 text-sm col-span-full text-center py-10">По выбранным фильтрам объявлений не найдено.</p>`;
         return;
     }
 
@@ -135,7 +380,7 @@ function renderAds(adsToRender) {
     }).join('');
 }
 
-// Авторизация и регистрация
+// Режимы авторизации
 function switchAuthMode(mode) {
     currentAuthMode = mode;
     const regFields = document.getElementById('register-fields');
@@ -194,11 +439,11 @@ async function handleAuthSubmit(e) {
     }
 }
 
-// Подача объявления
+// Подача объявлений
 async function handleCreateAd(e) {
     e.preventDefault();
     if (!currentUser) {
-        alert('Сначала войдите в систему или зарегистрируйтесь!');
+        alert('Подача объявлений доступна только залогиненным пользователям.');
         openAuthModal();
         return;
     }
@@ -207,12 +452,19 @@ async function handleCreateAd(e) {
     const dealType = document.getElementById('ad-deal-type').value;
     const rawTitle = document.getElementById('ad-title').value;
     
-    // Автоматический префикс Продам / Куплю к заголовку
     const titlePrefix = dealType === 'buy' ? 'Куплю: ' : 'Продам: ';
     formData.append('title', rawTitle.toLowerCase().startsWith('куплю') || rawTitle.toLowerCase().startsWith('продам') ? rawTitle : titlePrefix + rawTitle);
     
     formData.append('category', document.getElementById('ad-category').value);
-    formData.append('location', document.getElementById('ad-location').value);
+    
+    // Сборка составного географического адреса
+    const oblastVal = document.getElementById('ad-oblast').value;
+    const districtVal = document.getElementById('ad-district').value;
+    const villageVal = document.getElementById('ad-village').value;
+    
+    const fullLocation = `${oblastVal}, ${districtVal}, ${villageVal}`;
+    formData.append('location', fullLocation);
+
     formData.append('price', document.getElementById('ad-price').value);
     formData.append('description', document.getElementById('ad-desc').value);
     formData.append('phone', currentUser.phone);
@@ -236,7 +488,7 @@ async function handleCreateAd(e) {
     }
 }
 
-// Данные админа
+// Панель модератора
 async function loadAdminData() {
     if (!currentUser || !currentUser.is_admin) return;
     try {
