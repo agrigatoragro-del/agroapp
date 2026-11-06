@@ -4,224 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Агро-Маркетплейс Казахстана</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 min-h-screen pb-20">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
 
-    <!-- Шапка приложения -->
-    <header class="bg-green-700 text-white p-4 sticky top-0 z-50 shadow-md">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold flex items-center gap-2">
-                <i class="fa-solid fa-wheat-awn"></i> АгроМаркет KZ
-            </h1>
-            <div id="user-header-profile" class="flex items-center gap-2 cursor-pointer" onclick="switchTab('profile')">
-                <span id="user-status-badge" class="text-xs bg-green-800 px-3 py-1 rounded-full border border-green-500 text-white">
-                    Гость
-                </span>
+    <!-- ХЭДЕР -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-tractor text-green-600 text-2xl"></i>
+                <span class="font-bold text-lg text-green-800">AgroKZ</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openAddAdModal()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center space-x-1">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Подать объявление</span>
+                </button>
+                <div id="user-menu-container">
+                    <button onclick="openAuthModal()" class="border border-green-600 text-green-700 hover:bg-green-50 px-3 py-1.5 rounded-lg text-sm font-semibold transition">
+                        Войти
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Основной контент (Лента объявлений) -->
-    <main id="view-feed" class="max-w-4xl mx-auto p-4">
-        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
-                <input type="text" id="search-input" placeholder="Поиск: ангары, тракторы..." class="p-2 border rounded-lg focus:outline-none focus:border-green-600 text-sm">
-                
-                <select id="filter-region" class="p-2 border rounded-lg bg-white text-sm">
-                    <option value="">Весь Казахстан (Все регионы)</option>
-                    <option value="Костанайская область">Костанайская область</option>
-                    <option value="г. Костанай">г. Костанай</option>
-                    <option value="Акмолинская область">Акмолинская область</option>
-                    <option value="г. Астана">г. Астана</option>
-                    <option value="Северо-Казахстанская область">Северо-Казахстанская область</option>
-                </select>
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
+        <h1 class="text-2xl font-extrabold text-gray-900 mb-6">Каталог агро-предложений</h1>
+        
+        <!-- Список объявлений -->
+        <div id="ads-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <p class="text-gray-500 text-sm col-span-full">Загрузка объявлений...</p>
+        </div>
+    </main>
 
-                <button onclick="loadAds()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium">Найти</button>
-            </div>
+    <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ / РЕГИСТРАЦИИ -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
             
-            <div class="flex gap-2 overflow-x-auto pb-2 text-sm">
-                <button onclick="filterCategory('')" class="cat-btn bg-gray-200 px-3 py-1 rounded-full whitespace-nowrap active font-medium">Все</button>
-                <button onclick="filterCategory('Ангары')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap font-medium">Ангары</button>
-                <button onclick="filterCategory('Зерновые комплексы')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap font-medium">Зернокомплексы</button>
-                <button onclick="filterCategory('Сельхозтехника')" class="cat-btn bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap font-medium">Сельхозтехника</button>
+            <h2 id="auth-modal-title" class="text-xl font-bold mb-4 text-gray-800">Вход в систему</h2>
+
+            <!-- Переключатели режимов -->
+            <div class="flex mb-4 bg-gray-100 p-1 rounded-lg">
+                <button id="tab-login-btn" onclick="switchAuthMode('login')" class="flex-1 py-1.5 text-xs font-semibold rounded-md bg-white shadow-sm text-green-700">Войти</button>
+                <button id="tab-register-btn" onclick="switchAuthMode('register')" class="flex-1 py-1.5 text-xs font-semibold text-gray-500 rounded-md">Регистрация</button>
             </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
+                <div id="register-fields" class="hidden space-y-3">
+                    <input type="text" id="reg-name" placeholder="Ваше имя / Компания" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600">
+                    <select id="reg-type" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600 bg-white">
+                        <option value="individual">Физическое лицо</option>
+                        <option value="company">Компания / КХ</option>
+                    </select>
+                </div>
+
+                <input type="text" id="auth-phone" placeholder="Телефон (+7...)" required class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600">
+                <input type="password" id="auth-password" placeholder="Пароль" required class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600">
+
+                <button type="submit" id="auth-submit-btn" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-bold text-sm transition">
+                    Войти
+                </button>
+            </form>
         </div>
+    </div>
 
-        <div id="ads-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="text-center py-10 text-gray-500 col-span-full">Загрузка объявлений...</div>
-        </div>
-    </main>
-
-    <!-- Личный кабинет -->
-    <main id="view-profile" class="max-w-4xl mx-auto p-4 hidden">
-        <div class="bg-white rounded-xl shadow-sm p-6 max-w-2xl mx-auto space-y-6">
-            <div class="flex justify-between items-center border-b pb-4">
-                <h2 class="text-xl font-bold text-green-800"><i class="fa-solid fa-user-gear"></i> Личный кабинет</h2>
-                <button onclick="logout()" class="text-red-500 text-xs font-semibold hover:underline">Выйти из аккаунта</button>
+    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ И АДМИНКИ -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Личный кабинет</h2>
+            
+            <div id="profile-info" class="space-y-4">
+                <!-- Информация о пользователе -->
             </div>
 
-            <div class="bg-green-50 rounded-xl p-4">
-                <div class="flex items-center gap-4 mb-4 pb-4 border-b">
-                    <div class="relative w-20 h-20 rounded-full overflow-hidden bg-gray-200 border-2 border-green-600 flex-shrink-0">
-                        <img id="prof-avatar-img" src="https://via.placeholder.com/150?text=Агро" class="w-full h-full object-cover">
+            <!-- АДМИНИСТРАТИВНАЯ ПАНЕЛЬ (СКРЫТА ПО УМОЛЧАНИЮ) -->
+            <div id="admin-panel-section" class="bg-amber-50 rounded-xl p-4 border border-amber-300 hidden space-y-4 mt-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-md text-amber-900"><i class="fa-solid fa-shield-halved"></i> Панель модератора</h3>
+                    <span id="admin-stats-badge" class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-semibold">Активна</span>
+                </div>
+
+                <!-- Блоки со статистикой -->
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-white p-2 rounded-lg border border-amber-200 shadow-sm">
+                        <p class="text-[10px] text-gray-500">Пользователи</p>
+                        <p id="stat-users-count" class="font-extrabold text-amber-900 text-sm">0</p>
                     </div>
-                    <div>
-                        <label class="cursor-pointer bg-white border border-green-600 text-green-700 text-xs px-3 py-1.5 rounded-lg font-semibold hover:bg-green-100 inline-block">
-                            <i class="fa-solid fa-camera"></i> Сменить фото / логотип
-                            <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="uploadUserAvatar(event)">
-                        </label>
-                        <p class="text-[10px] text-gray-500 mt-1">Фото владельца или логотип ТОО</p>
+                    <div class="bg-white p-2 rounded-lg border border-amber-200 shadow-sm">
+                        <p class="text-[10px] text-gray-500">Всего объявлений</p>
+                        <p id="stat-ads-count" class="font-extrabold text-amber-900 text-sm">0</p>
+                    </div>
+                    <div class="bg-white p-2 rounded-lg border border-amber-200 shadow-sm">
+                        <p class="text-[10px] text-gray-500">На модерации</p>
+                        <p id="stat-pending-count" class="font-extrabold text-red-600 text-sm">0</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div>
-                        <p class="text-xs text-gray-500">Имя:</p>
-                        <p class="font-bold text-gray-800" id="prof-name">-</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500">Телефон (Логин):</p>
-                        <p class="font-bold text-gray-800" id="prof-phone">-</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500">Тип профиля:</p>
-                        <p class="font-bold text-gray-800" id="prof-type">-</p>
-                    </div>
-                    <div id="prof-bin-container" class="hidden">
-                        <p class="text-xs text-gray-500">БИН:</p>
-                        <p class="font-bold text-gray-800" id="prof-bin">-</p>
-                    </div>
-                    <div class="md:col-span-2 border-t pt-3 flex justify-between items-center">
-                        <div>
-                            <p class="text-xs text-gray-500">Рекламный баланс:</p>
-                            <p class="text-lg font-extrabold text-green-700" id="prof-credits">0 ₸</p>
-                        </div>
-                        <span id="prof-verified-badge" class="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded-full font-bold">Обычный аккаунт</span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="admin-panel-section" class="bg-amber-50 rounded-xl p-4 border border-amber-300 hidden">
-                <h3 class="font-bold text-md text-amber-900 mb-3"><i class="fa-solid fa-shield-halved"></i> Панель модератора (Админ)</h3>
-                <p class="text-xs text-amber-800 mb-3">Очередь объявлений на модерацию:</p>
-                <div id="admin-moderation-list" class="space-y-2">
-                    <p class="text-xs text-gray-500">Загрузка очереди...</p>
-                </div>
-            </div>
-
-            <div class="bg-gray-50 rounded-xl p-4 border">
-                <h3 class="font-bold text-sm text-gray-800 mb-3"><i class="fa-solid fa-key text-green-700"></i> Смена пароля</h3>
-                <form onsubmit="changePassword(event)" class="space-y-3">
-                    <input type="password" id="old-password" placeholder="Текущий пароль" class="w-full p-2 border rounded-lg text-sm bg-white" required>
-                    <input type="password" id="new-password" placeholder="Новый пароль" class="w-full p-2 border rounded-lg text-sm bg-white" required>
-                    <button type="submit" class="bg-gray-900 hover:bg-gray-800 text-white text-xs py-2 px-4 rounded-lg font-medium">Обновить пароль</button>
-                </form>
-            </div>
-
-            <div>
-                <h3 class="font-bold text-md text-gray-800 mb-3">Мои объявления</h3>
-                <div id="my-ads-list" class="space-y-3">
-                    <p class="text-sm text-gray-500">У вас пока нет опубликованных объявлений.</p>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Модальное окно подачи объявления -->
-    <main id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl max-w-lg w-full p-6 relative shadow-xl max-h-[90vh] overflow-y-auto">
-            <h2 class="text-xl font-bold mb-4 text-green-800">Подать объявление</h2>
-            <form id="ad-form" onsubmit="submitAd(event)" class="space-y-3">
-                <input type="text" id="ad-title" placeholder="Название (например, Ангар 15х30)" required class="w-full p-2 border rounded-lg text-sm">
-                
-                <select id="ad-category" required class="w-full p-2 border rounded-lg text-sm bg-white">
-                    <option value="">Выберите категорию</option>
-                    <option value="Ангары">Ангары</option>
-                    <option value="Зерновые комплексы">Зерновые комплексы</option>
-                    <option value="Сельхозтехника">Сельхозтехника</option>
-                </select>
-
-                <select id="ad-location" required class="w-full p-2 border rounded-lg text-sm bg-white">
-                    <option value="">Выберите область / район / город</option>
-                    <option value="Костанайская область">Костанайская область</option>
-                    <option value="г. Костанай">г. Костанай</option>
-                    <option value="Акмолинская область">Акмолинская область</option>
-                    <option value="г. Астана">г. Астана</option>
-                    <option value="Северо-Казахстанская область">Северо-Казахстанская область</option>
-                </select>
-
-                <textarea id="ad-description" placeholder="Описание, характеристики, условия..." rows="3" required class="w-full p-2 border rounded-lg text-sm"></textarea>
-                
-                <input type="number" id="ad-price" placeholder="Цена в тенге (₸)" required class="w-full p-2 border rounded-lg text-sm">
-                <input type="text" id="ad-phone" placeholder="Ваш телефон для связи (+7...)" required class="w-full p-2 border rounded-lg text-sm">
-
-                <!-- Красивый блок мультизагрузки фотографий с плиткой и плюсиком -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Фотографии объекта (до 10 шт.):</label>
-                    <input type="file" id="ad-images" accept="image/*" multiple class="hidden" onchange="handleFilesSelect(event)">
-                    
-                    <div id="image-preview-grid" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-1">
-                        <label for="ad-images" class="cursor-pointer border-2 border-dashed border-green-600 hover:border-green-700 bg-green-50 hover:bg-green-100 rounded-xl flex flex-col items-center justify-center h-24 text-green-700 transition">
-                            <i class="fa-solid fa-plus text-xl mb-1"></i>
-                            <span class="text-[11px] font-semibold text-center px-1">Добавить фото</span>
-                        </label>
+                    <p class="text-xs text-amber-800 font-semibold mb-2">Очередь на модерацию:</p>
+                    <div id="admin-moderation-list" class="space-y-2">
+                        <p class="text-xs text-gray-500">Загрузка очереди...</p>
                     </div>
-                    <p class="text-[10px] text-gray-400 mt-1">Можно добавлять по одному или несколько (макс. 10).</p>
                 </div>
-
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-gray-300 rounded-lg text-sm font-medium">Отмена</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium">Опубликовать</button>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    <!-- Модальное окно авторизации -->
-    <main id="authModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl max-w-sm w-full p-6 relative shadow-xl">
-            <h3 class="text-lg font-bold mb-2 text-green-800">Вход / Регистрация</h3>
-            <p class="text-xs text-gray-600 mb-4">Введите телефон и пароль:</p>
-            
-            <div class="flex rounded-lg bg-gray-200 p-1 mb-3">
-                <button type="button" onclick="setAuthType('individual')" id="auth-ind-btn" class="flex-1 py-1 text-xs font-semibold rounded-md bg-white shadow-sm text-green-800">Физ. лицо / КХ</button>
-                <button type="button" onclick="setAuthType('company')" id="auth-com-btn" class="flex-1 py-1 text-xs font-semibold rounded-md text-gray-600">Юр. лицо (ТОО)</button>
             </div>
 
-            <form onsubmit="handleQuickAuth(event)" class="space-y-3">
-                <input type="text" id="auth-phone" placeholder="Телефон (+7...)" class="w-full p-2 border rounded-lg text-sm" required>
-                <input type="password" id="auth-password" placeholder="Пароль" class="w-full p-2 border rounded-lg text-sm" required>
-                <input type="text" id="auth-name" placeholder="ФИО или Название ТОО" class="w-full p-2 border rounded-lg text-sm" required>
-                <input type="text" id="auth-bin" placeholder="БИН компании (12 цифр)" class="w-full p-2 border rounded-lg text-sm hidden">
+            <button onclick="logout()" class="mt-6 w-full bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-xl font-bold text-sm transition">
+                Выйти из аккаунта
+            </button>
+        </div>
+    </div>
 
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeAuthModal()" class="px-3 py-1.5 bg-gray-300 rounded-lg text-xs font-medium">Отмена</button>
-                    <button type="submit" class="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium">Войти</button>
-                </div>
+    <!-- МОДАЛЬНОЕ ОКНО ПОДАЧИ ОБЪЯВЛЕНИЯ -->
+    <div id="add-ad-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeAddAdModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h2 class="text-xl font-bold mb-4">Новое объявление</h2>
+            <form id="ad-form" onsubmit="handleCreateAd(event)" class="space-y-3">
+                <input type="text" id="ad-title" placeholder="Заголовок (например, Пшеница 3 класс)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                <input type="text" id="ad-category" placeholder="Категория (Зерновые, Техника...)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                <input type="text" id="ad-location" placeholder="Город / Регион (Костанай)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                <input type="number" id="ad-price" placeholder="Цена (тенге)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
+                <textarea id="ad-desc" placeholder="Описание товара..." required class="w-full p-2.5 border rounded-xl text-sm outline-none"></textarea>
+                <input type="file" id="ad-images" multiple accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-bold text-sm transition">
+                    Опубликовать
+                </button>
             </form>
         </div>
-    </main>
+    </div>
 
-    <!-- Нижняя панель навигации -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 max-w-4xl mx-auto shadow-lg">
-        <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center text-green-600">
-            <i class="fa-solid fa-store text-lg"></i>
-            <span class="text-xs font-medium">Объявления</span>
-        </button>
-        <button onclick="openAddModal()" class="flex flex-col items-center text-gray-500 hover:text-green-600">
-            <i class="fa-solid fa-circle-plus text-2xl text-green-600"></i>
-            <span class="text-xs font-medium">Подать</span>
-        </button>
-        <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center text-gray-500 hover:text-green-600">
-            <i class="fa-solid fa-user text-lg"></i>
-            <span class="text-xs font-medium">Профиль</span>
-        </button>
-    </nav>
-
-    <script src="/static/js/api.js"></script>
+    <!-- Подключаем логику JS -->
     <script src="/static/js/app.js"></script>
 </body>
 </html>
