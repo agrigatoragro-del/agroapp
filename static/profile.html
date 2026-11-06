@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Личный кабинет - AgroKZ</title>
+    <title>Личный кабинет - Agro-Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -44,11 +44,11 @@
             </div>
         </div>
 
-        <!-- Кнопка перехода в Админ-панель (Видна только администратору) -->
+        <!-- Кнопка перехода к модерации объявлений (Видна только администратору) -->
         <div id="admin-btn-container" class="hidden">
-            <a href="/static/admin.html" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-2xl font-bold text-sm transition flex items-center justify-center space-x-2 shadow-sm">
-                <i class="fa-solid fa-shield-halved text-lg"></i>
-                <span>Перейти в Админ-панель (Модерация)</span>
+            <a href="/static/moderation.html" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-2xl font-bold text-sm transition flex items-center justify-center space-x-2 shadow-sm">
+                <i class="fa-solid fa-clipboard-check text-lg"></i>
+                <span>Перейти к модерации объявлений</span>
             </a>
         </div>
 
@@ -66,16 +66,15 @@
             const currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
             if (!currentUser) {
-                // Если не авторизован — перенаправляем на главную
+                // Если не авторизован — отправляем на главную
                 window.location.href = '/';
                 return;
             }
 
-            // Выводим имя и телефон
+            // Заполняем данные профиля
             document.getElementById('profile-name').textContent = currentUser.name || 'Без имени';
             document.getElementById('profile-phone').textContent = currentUser.phone;
             
-            // Тип аккаунта
             const typeText = currentUser.user_type === 'company' ? 'Юридическое лицо' : 'Физическое лицо / КХ';
             document.getElementById('profile-type').textContent = typeText;
 
@@ -84,7 +83,7 @@
                 document.getElementById('profile-bin-container').classList.remove('hidden');
             }
 
-            // Проверка прав администратора
+            // Проверяем права администратора для отображения плашки и кнопки модерации
             if (currentUser.is_admin) {
                 document.getElementById('admin-badge').classList.remove('hidden');
                 document.getElementById('admin-btn-container').classList.remove('hidden');
