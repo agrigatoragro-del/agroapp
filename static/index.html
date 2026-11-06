@@ -103,7 +103,7 @@
                     </select>
                 </div>
 
-                <!-- 4. Выбор Района / Города / Райцентра -->
+                <!-- 4. Выбор Района / Города -->
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Район / Райцентр</label>
                     <select id="filter-region-district" onchange="applyFilters()" disabled class="w-full p-2.5 border rounded-xl text-sm outline-none bg-gray-100 text-gray-400 focus:bg-white focus:border-green-600 transition">
@@ -135,11 +135,18 @@
 
             <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
                 <div id="register-fields" class="hidden space-y-3">
-                    <input type="text" id="reg-name" placeholder="Ваше имя / Наименование компании" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600">
-                    <select id="reg-type" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600 bg-white">
-                        <option value="individual">Физическое лицо</option>
-                        <option value="company">Компания / КХ</option>
+                    <input type="text" id="reg-name" placeholder="Ваше имя / Наименование" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600">
+                    
+                    <!-- Разделение типов лиц -->
+                    <select id="reg-type" onchange="onUserTypeChange()" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600 bg-white">
+                        <option value="individual">Физическое лицо / КХ</option>
+                        <option value="company">Юридическое лицо</option>
                     </select>
+
+                    <!-- БИН для юр. лиц -->
+                    <div id="bin-container" class="hidden">
+                        <input type="text" id="reg-bin" placeholder="БИН организации (обязательно)" class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600 bg-amber-50/50">
+                    </div>
                 </div>
 
                 <input type="text" id="auth-phone" placeholder="Телефон (+7...)" required class="w-full p-2.5 border rounded-xl text-sm outline-none focus:border-green-600">
@@ -147,51 +154,6 @@
 
                 <button type="submit" id="auth-submit-btn" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-bold text-sm transition">Войти</button>
             </form>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ И АДМИНКИ -->
-    <div id="profile-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <h2 class="text-xl font-bold mb-4 text-gray-800">Профиль пользователя</h2>
-            
-            <div id="profile-info" class="space-y-4"></div>
-
-            <div id="admin-panel-section" class="bg-amber-50 rounded-xl p-4 border border-amber-300 hidden space-y-4 mt-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-md text-amber-900"><i class="fa-solid fa-shield-halved"></i> Панель модератора</h3>
-                    <span class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-semibold">Админ</span>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-white p-2 rounded-lg border border-amber-200 shadow-sm">
-                        <p class="text-[10px] text-gray-500">Пользователи</p>
-                        <p id="stat-users-count" class="font-extrabold text-amber-900 text-sm">0</p>
-                    </div>
-                    <div class="bg-white p-2 rounded-lg border border-amber-200 shadow-sm">
-                        <p class="text-[10px] text-gray-500">Объявлений</p>
-                        <p id="stat-ads-count" class="font-extrabold text-amber-900 text-sm">0</p>
-                    </div>
-                    <div class="bg-white p-2 rounded-lg border border-amber-200 shadow-sm">
-                        <p class="text-[10px] text-gray-500">На модерации</p>
-                        <p id="stat-pending-count" class="font-extrabold text-red-600 text-sm">0</p>
-                    </div>
-                </div>
-
-                <div>
-                    <p class="text-xs text-amber-800 font-semibold mb-2">Очередь объявлений:</p>
-                    <div id="admin-moderation-list" class="space-y-2">
-                        <p class="text-xs text-gray-500">Загрузка...</p>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="logout()" class="mt-6 w-full bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-xl font-bold text-sm transition">
-                Выйти из аккаунта
-            </button>
         </div>
     </div>
 
@@ -204,7 +166,6 @@
             <h2 class="text-xl font-bold mb-4">Новое объявление</h2>
             <form id="ad-form" onsubmit="handleCreateAd(event)" class="space-y-3">
                 
-                <!-- Тип предложения -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Тип объявления:</label>
                     <select id="ad-deal-type" required class="w-full p-2.5 border rounded-xl text-sm outline-none bg-white">
@@ -213,7 +174,6 @@
                     </select>
                 </div>
 
-                <!-- Категория -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Категория:</label>
                     <select id="ad-category" required class="w-full p-2.5 border rounded-xl text-sm outline-none bg-white">
@@ -263,7 +223,6 @@
                         <option value="" disabled selected>Сначала выберите область</option>
                     </select>
 
-                    <!-- Динамическое поле села (скрывается или становится необязательным, если выбран город/облцентр) -->
                     <div id="village-container">
                         <input type="text" id="ad-village" placeholder="Населенный пункт / село (необязательно, если выбран город)" class="w-full p-2 border rounded-lg text-sm bg-white">
                     </div>
@@ -273,7 +232,7 @@
                 <input type="number" id="ad-price" placeholder="Цена / Бюджет (тенге)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
                 <textarea id="ad-desc" placeholder="Подробности (объем, состояние, качественные показатели...)" required class="w-full p-2.5 border rounded-xl text-sm outline-none h-20"></textarea>
                 
-                <!-- ВИЗУАЛЬНАЯ ЗАГРУЗКА ФОТО (ДО 10 ШТ С ПРЕВЬЮ И ПЛЮСОМ) -->
+                <!-- ФОТОГРАФИИ (ПРЕВЬЮ С ПЛЮСОМ) -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Фотографии (до 10 шт.):</label>
                     <div id="photo-preview-container" class="flex flex-wrap gap-2 items-center">
