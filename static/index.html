@@ -259,17 +259,31 @@
                         <option value="г. Шымкент">г. Шымкент</option>
                     </select>
 
-                    <select id="ad-district" disabled required class="w-full p-2 border rounded-lg text-sm bg-gray-100 text-gray-400">
+                    <select id="ad-district" onchange="onAdDistrictChange()" disabled required class="w-full p-2 border rounded-lg text-sm bg-gray-100 text-gray-400">
                         <option value="" disabled selected>Сначала выберите область</option>
                     </select>
 
-                    <input type="text" id="ad-village" placeholder="Населенный пункт (например: с. Троебратское / с. Узунколь)" required class="w-full p-2 border rounded-lg text-sm bg-white">
+                    <!-- Динамическое поле села (скрывается или становится необязательным, если выбран город/облцентр) -->
+                    <div id="village-container">
+                        <input type="text" id="ad-village" placeholder="Населенный пункт / село (необязательно, если выбран город)" class="w-full p-2 border rounded-lg text-sm bg-white">
+                    </div>
                 </div>
 
                 <input type="text" id="ad-title" placeholder="Заголовок (напр.: Пшеница 3 класс / Трактор MТЗ)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
                 <input type="number" id="ad-price" placeholder="Цена / Бюджет (тенге)" required class="w-full p-2.5 border rounded-xl text-sm outline-none">
                 <textarea id="ad-desc" placeholder="Подробности (объем, состояние, качественные показатели...)" required class="w-full p-2.5 border rounded-xl text-sm outline-none h-20"></textarea>
-                <input type="file" id="ad-images" multiple accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                
+                <!-- ВИЗУАЛЬНАЯ ЗАГРУЗКА ФОТО (ДО 10 ШТ С ПРЕВЬЮ И ПЛЮСОМ) -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Фотографии (до 10 шт.):</label>
+                    <div id="photo-preview-container" class="flex flex-wrap gap-2 items-center">
+                        <label id="add-photo-btn-label" class="w-20 h-20 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-600 bg-white transition text-gray-400 hover:text-green-600">
+                            <i class="fa-solid fa-plus text-xl mb-1"></i>
+                            <span class="text-[10px] font-semibold">Добавить</span>
+                            <input type="file" id="ad-images-input" accept="image/*" multiple class="hidden" onchange="handleImagesSelected(event)">
+                        </label>
+                    </div>
+                </div>
 
                 <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-bold text-sm transition">
                     Опубликовать
